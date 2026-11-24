@@ -10,14 +10,20 @@ Lis INTENT.md avant tout travail.
 
 Mini CRM de prospection mono-utilisateur. Les intentions produit, les contraintes et les critères d'acceptation sont dans `INTENT.md` : c'est la référence à relire avant toute décision d'architecture.
 
-État actuel : un scaffold Next.js nu. `app/page.tsx` affiche seulement « Pipeline ». Aucune couche métier, aucune base et aucun test n'existent encore.
+État actuel : `app/page.tsx` affiche seulement « Pipeline ». Les 3 couches existent avec un exemple vide chacune (`presentation/example-view.tsx`, `services/example-service.ts`, `data/example-repository.ts`). Aucune base n'est encore branchée : le dépôt d'exemple renvoie une liste vide.
 
 ## Commandes (pnpm uniquement)
 
 - `pnpm dev` : serveur de dev Turbopack sur http://localhost:3000
 - `pnpm build` / `pnpm start`
 - `pnpm lint` : ESLint 9 en flat config (`eslint-config-next` core-web-vitals + typescript)
-- Aucun script `test` pour l'instant. `INTENT.md` exige des tests unitaires sur les règles métier, donc le framework de test reste à ajouter.
+- `pnpm test` : Vitest (`vitest run`, config dans `vitest.config.mts`, environnement node). Les tests sont à côté du code (`*.test.ts` / `*.test.tsx`). Les composants sont testés via `renderToStaticMarkup`.
+
+## Couches
+
+- `presentation/` : composants React, reçoivent des données en props, n'importent jamais `data/`.
+- `services/` : règles métier, ne dépendent que des interfaces de `data/` (jamais d'un client de base). Tester avec un faux dépôt.
+- `data/` : seule couche qui parle à la base ; expose une interface (ex. `ExampleRepository`) et son implémentation.
 
 ## Stack et configuration notables
 
