@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline · trois directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Overpass:wght@400;600;800&family=Public+Sans:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Page (neutre, ne fait partie d'aucune direction) ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #E9EAEC; color: #1B1D21; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .page-head { max-width: 1440px; margin: 0 auto; padding: 40px 24px 8px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.01em; }
+  .page-head p { margin: 0; max-width: 70ch; color: #4A4E57; }
+  .mode-title { max-width: 1440px; margin: 0 auto; padding: 28px 24px 12px; font-size: 20px; font-weight: 700; }
+  .mode-title.dk { margin-top: 8px; padding-top: 36px; }
+  .band-dark { background: #1A1C20; color: #EDEEF0; padding-bottom: 8px; }
+  .grid { max-width: 1440px; margin: 0 auto; padding: 0 24px 48px; display: grid; gap: 20px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 1180px) { .grid { grid-template-columns: 1fr; max-width: 560px; } .mode-title { max-width: 560px; } }
+  @media (max-width: 480px) { .grid, .page-head, .mode-title { padding-left: 16px; padding-right: 16px; } }
+
+  /* ---------- Gabarit commun, tout passe par les tokens ---------- */
+  .sys { border-radius: 14px; overflow: hidden; background: var(--ground); color: var(--ink); font-family: var(--body); }
+  .sys ::selection { background: var(--select); color: var(--ink); }
+  .sys header.hd { background: var(--shell); color: var(--shell-ink); padding: 22px 24px 20px; }
+  .hd h2 { margin: 0; font-family: var(--display); font-size: 30px; line-height: 1.05; }
+  .hd p { margin: 8px 0 0; font-size: 14px; line-height: 1.45; max-width: 46ch; }
+  .sec { padding: 20px 24px; border-top: 1px solid var(--rule); }
+  .sec h3 { margin: 0 0 12px; font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--muted); }
+
+  .sw { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sw div { border-radius: var(--r-sm); padding: 34px 8px 7px; font-size: 11px; line-height: 1.3; border: 1px solid var(--rule); background: var(--c); }
+  .sw b { display: block; font-size: 12px; }
+  .sw span { font-variant-numeric: tabular-nums; opacity: .85; }
+
+  .type .t-display { font-family: var(--display); margin: 0; }
+  .type .t-body { margin: 8px 0 0; font-size: 15px; }
+  .type .t-meta { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 38px; padding: 0 16px; border-radius: var(--r-btn);
+    display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid transparent; transition: background-color .15s, border-color .15s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible, .in:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .btn-p { background: var(--primary); color: var(--primary-ink); }
+  .btn-p:hover { background: var(--primary-hover); }
+  .btn-s { background: transparent; color: var(--ink); border-color: var(--border-strong); }
+  .btn-s:hover { background: var(--hover); }
+  .btn-d { background: transparent; color: var(--danger); border-color: currentColor; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+
+  .fields { display: grid; gap: 12px; }
+  .fld label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .in { width: 100%; font: inherit; font-size: 15px; color: var(--ink); background: var(--field); min-height: 40px; padding: 0 12px;
+    border: var(--field-bw) solid var(--border); border-radius: var(--r-field); caret-color: var(--focus); }
+  .in::placeholder { color: var(--placeholder); }
+  .in.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .in.is-err { border-color: var(--danger); }
+  .err { margin: 5px 0 0; font-size: 12.5px; color: var(--danger); }
+
+  .why { font-size: 13px; color: var(--muted); }
+  .why p { margin: 0 0 6px; }
+  .why b { color: var(--ink); font-weight: 600; }
+
+  /* =====================================================================
+     A · CACHET
+     ===================================================================== */
+  .a {
+    --ground: #EEF0F3; --ink: #14213D; --muted: #4B5670; --rule: #D5DAE3; --card: #FFFFFF;
+    --shell: #1E3A8A; --shell-ink: #F4F6FB;
+    --primary: #1E3A8A; --primary-hover: #182F72; --primary-ink: #FFFFFF;
+    --danger: #B3261E; --focus: #2F5BD3; --hover: #E1E6EF; --select: #C9D6F6;
+    --field: #FFFFFF; --border: #B9C1CF; --border-strong: #8C97AD; --placeholder: #6B7488; --field-bw: 1px;
+    --stamp: #1E3A8A; --stamp-late: #B3261E;
+    --chip: #E3E9F7; --chip-ink: #1E3A8A; --kraft: #F1E6D2; --kraft-ink: #6B4A16;
+    --card-shadow: 0 1px 2px rgba(20,33,61,.06), 0 4px 12px rgba(20,33,61,.05);
+    --r-sm: 4px; --r-btn: 6px; --r-field: 6px;
+    --body: "Public Sans", system-ui, sans-serif; --display: "Barlow Condensed", "Public Sans", sans-serif;
+  }
+  .a.dark {
+    --ground: #0E1626; --ink: #E6EBF5; --muted: #A3AEC6; --rule: #26324F; --card: #16213A;
+    --shell: #16285E; --shell-ink: #E6EBF5;
+    --primary: #8FA8FF; --primary-hover: #A9BCFF; --primary-ink: #0E1626;
+    --danger: #FF8A80; --focus: #8FA8FF; --hover: #1C2A47; --select: #2C4380;
+    --field: #111B2E; --border: #34405E; --border-strong: #56638A; --placeholder: #8893AD;
+    --stamp: #8FA8FF; --stamp-late: #FF8A80;
+    --chip: #22315A; --chip-ink: #C7D4FF; --kraft: #3A2E1A; --kraft-ink: #E8CF9F;
+    --card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 16px rgba(0,0,0,.25);
+  }
+  .a .hd h2 { font-size: 36px; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
+  .a .t-display { font-size: 34px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; line-height: 1; }
+  .a .card { position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 112px 16px 16px; box-shadow: var(--card-shadow); }
+  .a .card + .card { margin-top: 10px; }
+  .a .card h4 { margin: 0; font-size: 17px; font-weight: 700; }
+  .a .card .co { margin: 2px 0 10px; font-size: 13.5px; color: var(--muted); }
+  .a .stage { display: inline-flex; font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 4px; background: var(--chip); color: var(--chip-ink); }
+  .a .stage.kraft { background: var(--kraft); color: var(--kraft-ink); }
+  .a .card .last { margin: 10px 0 12px; font-size: 13px; color: var(--muted); }
+  .a .stamp { position: absolute; top: 14px; right: 12px; width: 92px; height: 92px; transform: rotate(-9deg); color: var(--stamp); }
+  .a .stamp.late { color: var(--stamp-late); transform: rotate(6deg); }
+  .a .stamp text { font-family: "Barlow Condensed", sans-serif; font-weight: 700; fill: currentColor; }
+
+  /* =====================================================================
+     B · PANNEAU
+     ===================================================================== */
+  .b {
+    --ground: #FFFFFF; --ink: #111111; --muted: #4D4D4D; --rule: #E3E3E3;
+    --shell: #FFCC00; --shell-ink: #111111;
+    --primary: #111111; --primary-hover: #2E2E2E; --primary-ink: #FFFFFF;
+    --danger: #C4161C; --focus: #111111; --hover: #F2F2F2; --select: #FFE57A;
+    --field: #FFFFFF; --border: #111111; --border-strong: #111111; --placeholder: #6E6E6E; --field-bw: 1.5px;
+    --signal: #FFCC00; --signal-hover: #F2BF00; --signal-ink: #111111;
+    --late-band: #111111; --late-ink: #FFFFFF; --pict: #111111; --chip: #111111; --chip-ink: #FFFFFF;
+    --r-sm: 0; --r-btn: 2px; --r-field: 2px;
+    --body: "Source Sans 3", system-ui, sans-serif; --display: "Source Sans 3", system-ui, sans-serif;
+  }
+  .b.dark {
+    --ground: #0F0F0F; --ink: #F5F5F5; --muted: #B5B5B5; --rule: #2A2A2A;
+    --primary: #F5F5F5; --primary-hover: #D9D9D9; --primary-ink: #111111;
+    --danger: #FF5A5F; --focus: #FFCC00; --hover: #1E1E1E; --select: #5C4A00;
+    --field: #161616; --border: #F5F5F5; --border-strong: #F5F5F5; --placeholder: #9A9A9A;
+    --late-band: #262626; --late-ink: #F5F5F5; --chip: #F5F5F5; --chip-ink: #111111;
+  }
+  .b .hd h2 { font-size: 34px; font-weight: 900; letter-spacing: -0.01em; }
+  .b .t-display { font-size: 34px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.05; }
+  .b .btn-y { background: var(--signal); color: var(--signal-ink); border-color: var(--signal-ink); }
+  .b .btn-y:hover { background: var(--signal-hover); }
+  .b .card { border: 1.5px solid var(--ink); }
+  .b .card + .card { margin-top: 10px; }
+  .b .band { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px; background: var(--signal); color: var(--signal-ink); padding: 10px 12px; }
+  .b .band.late { background: var(--late-band); color: var(--late-ink); }
+  .b .pict { width: 44px; height: 44px; background: var(--pict); color: #FFFFFF; display: grid; place-items: center; }
+  .b .band.late .pict { background: var(--danger); color: #111; }
+  .b:not(.dark) .band.late .pict { color: #FFFFFF; }
+  .b .pict svg { width: 26px; height: 26px; }
+  .b .band .when { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .b .band .when small { display: block; font-size: 12.5px; font-weight: 400; }
+  .b .gate { font-size: 40px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .b .body { padding: 12px 12px 14px; }
+  .b .body h4 { margin: 0; font-size: 18px; font-weight: 800; }
+  .b .body .co { margin: 1px 0 8px; font-size: 14px; color: var(--muted); }
+  .b .body .last { margin: 0 0 12px; font-size: 13.5px; color: var(--muted); }
+  .b .stage { font-size: 13px; font-weight: 600; }
+  .b .stage b { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 6px; background: var(--chip); color: var(--chip-ink); font-size: 12px; }
+
+  /* =====================================================================
+     C · LIGNE
+     ===================================================================== */
+  .c {
+    --ground: #FFFFFF; --ink: #0D1B2A; --muted: #4A5868; --rule: #E2E7EC;
+    --shell: #0D1B2A; --shell-ink: #F2F6F9;
+    --primary: #0B7A54; --primary-hover: #086645; --primary-ink: #FFFFFF;
+    --danger: #C0352B; --focus: #0B7A54; --hover: #EEF4F1; --select: #BFE7D6;
+    --field: #FFFFFF; --border: #C3CCD5; --border-strong: #93A1AF; --placeholder: #66737F; --field-bw: 1.5px;
+    --line: #0B7A54; --track: #D3DAE0; --station: #FFFFFF; --station-off: #AEB9C3; --current-ring: #0D1B2A;
+    --due: #E4F3EC; --due-ink: #075C3F; --late: #FBE7E5; --late-ink: #9E2A21;
+    --r-sm: 10px; --r-btn: 999px; --r-field: 10px;
+    --body: "Overpass", system-ui, sans-serif; --display: "Overpass", system-ui, sans-serif;
+  }
+  .c.dark {
+    --ground: #0B1622; --ink: #E8EEF3; --muted: #9FB0BF; --rule: #1F2F40;
+    --shell: #050C14; --shell-ink: #E8EEF3;
+    --primary: #2FBF8A; --primary-hover: #4CD39F; --primary-ink: #04140D;
+    --danger: #FF7A6E; --focus: #2FBF8A; --hover: #12263A; --select: #1E5A45;
+    --field: #0F1D2C; --border: #2A3D52; --border-strong: #4A6075; --placeholder: #7F91A2;
+    --line: #2FBF8A; --track: #24384C; --station: #0B1622; --station-off: #4A6075; --current-ring: #E8EEF3;
+    --due: #12352A; --due-ink: #7FE0B6; --late: #3A1A18; --late-ink: #FF9C92;
+  }
+  .c .hd h2 { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+  .c .t-display { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+  .c .card { border: 1.5px solid var(--rule); border-radius: 14px; padding: 16px; }
+  .c .card + .card { margin-top: 10px; }
+  .c .card h4 { margin: 0; font-size: 17px; font-weight: 800; }
+  .c .card .co { margin: 1px 0 0; font-size: 13.5px; color: var(--muted); }
+  .c .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .c .due { font-size: 13px; font-weight: 600; white-space: nowrap; padding: 3px 10px; border-radius: 999px; background: var(--due); color: var(--due-ink); }
+  .c .due.late { background: var(--late); color: var(--late-ink); }
+  .c .metro { margin: 16px 0 6px; }
+  .c .metro svg { width: 100%; height: 34px; display: block; overflow: visible; }
+  .c .metro .done { stroke: var(--line); }
+  .c .metro .todo { stroke: var(--track); }
+  .c .metro .st { fill: var(--station); stroke: var(--line); }
+  .c .metro .st.off { stroke: var(--station-off); }
+  .c .metro .st.cur { fill: var(--line); stroke: var(--current-ring); }
+  .c .metro .names { display: grid; grid-template-columns: repeat(5, 1fr); font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .c .metro .names .on { color: var(--ink); font-weight: 800; }
+  .c .card .last { margin: 8px 0 12px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Pipeline : trois directions de design</h1>
+  <p>Même contenu, trois mondes, chacun en thème clair et en thème sombre. Chaque colonne montre les couleurs, la typographie, les boutons, les champs et la carte de contact. Contacts et entreprises sont fictifs.</p>
+</header>
+
+<h2 class="mode-title">Thème clair</h2>
+<main class="grid" id="light">
+
+  <!-- ===================== A · CACHET ===================== -->
+  <section class="sys a">
+    <header class="hd">
+      <h2>Cachet</h2>
+      <p>Le monde du courrier. Chaque relance est une lettre à poster ; sa date s'imprime comme un tampon dateur, à l'heure ou en retard.</p>
+    </header>
+    <div class="sec">
+      <h3>Couleurs</h3>
+      <div class="sw">
+        <div data-tok="--primary"><b>Encre</b><span></span></div>
+        <div data-tok="--ink"><b>Texte</b><span></span></div>
+        <div data-tok="--ground"><b>Papier</b><span></span></div>
+        <div data-tok="--danger"><b>Retard</b><span></span></div>
+        <div data-tok="--kraft"><b>Kraft</b><span></span></div>
+        <div data-tok="--card"><b>Carte</b><span></span></div>
+      </div>
+    </div>
+    <div class="sec type">
+      <h3>Typographie · Barlow Condensed + Public Sans</h3>
+      <p class="t-display">Relances du jour</p>
+      <p class="t-body">Camille Roux attend votre devis depuis six jours.</p>
+      <p class="t-meta">Dernier échange le 18 nov. · 3 contacts à relancer</p>
+    </div>
+    <div class="sec">
+      <h3>Boutons</h3>
+      <div class="row">
+        <button class="btn btn-p">Ajouter un contact</button>
+        <button class="btn btn-s">Changer d'étape</button>
+        <button class="btn btn-d">Supprimer</button>
+        <button class="btn btn-p" disabled>Enregistrer</button>
+      </div>
+    </div>
+    <div class="sec fields">
+      <h3>Champs</h3>
+      <div class="fld"><label>Nom<input class="in" placeholder="Prénom Nom" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Entreprise<input class="in is-focus" value="Atelier Roux" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Date de relance<input class="in is-err" value="31/02/2026" style="margin-top:5px"></label><p class="err">Cette date n'existe pas. Choisissez un jour du calendrier.</p></div>
+    </div>
+    <div class="sec">
+      <h3>Carte de contact</h3>
+      <article class="card">
+        <h4>Camille Roux</h4>
+        <p class="co">Atelier Roux · menuiserie</p>
+        <span class="stage">Proposition envoyée</span>
+        <p class="last">Devis envoyé le 18 nov.</p>
+        <div class="row"><button class="btn btn-p">Relancer</button><button class="btn btn-s">Étape suivante</button></div>
+        <svg class="stamp" viewBox="0 0 100 100" role="img" aria-label="Relance prévue le jeudi 26 novembre">
+          <path id="arc-top" d="M 18 50 A 32 32 0 0 1 82 50" fill="none"/>
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2.5"/>
+          <circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text font-size="11" letter-spacing="2"><textPath href="#arc-top" startOffset="50%" text-anchor="middle">RELANCE</textPath></text>
+          <text x="50" y="58" font-size="21" text-anchor="middle">26·11</text>
+          <text x="50" y="74" font-size="10" letter-spacing="1.5" text-anchor="middle">JEUDI</text>
+        </svg>
+      </article>
+      <article class="card">
+        <h4>Hugo Bernard</h4>
+        <p class="co">Studio Lumen · photographie</p>
+        <span class="stage kraft">Contacté</span>
+        <p class="last">Premier appel le 10 nov.</p>
+        <div class="row"><button class="btn btn-p">Relancer</button><button class="btn btn-s">Étape suivante</button></div>
+        <svg class="stamp late" viewBox="0 0 100 100" role="img" aria-label="Relance en retard de 4 jours, prévue le vendredi 20 novembre">
+          <path id="arc-top2" d="M 18 50 A 32 32 0 0 1 82 50" fill="none"/>
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2.5"/>
+          <circle cx="50" cy="50" r="39" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text font-size="11" letter-spacing="2"><textPath href="#arc-top2" startOffset="50%" text-anchor="middle">EN RETARD</textPath></text>
+          <text x="50" y="58" font-size="21" text-anchor="middle">20·11</text>
+          <text x="50" y="74" font-size="10" letter-spacing="1.5" text-anchor="middle">−4 JOURS</text>
+        </svg>
+      </article>
+    </div>
+    <div class="sec why">
+      <p><b>Le geste signature :</b> le tampon dateur, lisible en un coup d'œil, bleu à l'heure, rouge en retard.</p>
+      <p><b>Risque :</b> le tampon tourné doit rester petit et rare, sinon l'écran devient décoratif.</p>
+    </div>
+  </section>
+
+  <!-- ===================== B · PANNEAU ===================== -->
+  <section class="sys b">
+    <header class="hd">
+      <h2>Panneau</h2>
+      <p>La signalétique d'aéroport. Le jaune est réservé à une seule chose : la prochaine relance, affichée comme une porte d'embarquement.</p>
+    </header>
+    <div class="sec">
+      <h3>Couleurs</h3>
+      <div class="sw">
+        <div data-tok="--signal"><b>Signal</b><span></span></div>
+        <div data-tok="--ink"><b>Texte</b><span></span></div>
+        <div data-tok="--ground"><b>Fond</b><span></span></div>
+        <div data-tok="--danger"><b>Retard</b><span></span></div>
+        <div data-tok="--hover"><b>Survol</b><span></span></div>
+        <div data-tok="--muted"><b>Secondaire</b><span></span></div>
+      </div>
+    </div>
+    <div class="sec type">
+      <h3>Typographie · Source Sans 3</h3>
+      <p class="t-display">Relances du jour</p>
+      <p class="t-body">Camille Roux attend votre devis depuis six jours.</p>
+      <p class="t-meta">Dernier échange le 18 nov. · 3 contacts à relancer</p>
+    </div>
+    <div class="sec">
+      <h3>Boutons</h3>
+      <div class="row">
+        <button class="btn btn-p">Ajouter un contact</button>
+        <button class="btn btn-y">Relancer</button>
+        <button class="btn btn-s">Changer d'étape</button>
+        <button class="btn btn-d">Supprimer</button>
+        <button class="btn btn-p" disabled>Enregistrer</button>
+      </div>
+    </div>
+    <div class="sec fields">
+      <h3>Champs</h3>
+      <div class="fld"><label>Nom<input class="in" placeholder="Prénom Nom" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Entreprise<input class="in is-focus" value="Atelier Roux" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Date de relance<input class="in is-err" value="31/02/2026" style="margin-top:5px"></label><p class="err">Cette date n'existe pas. Choisissez un jour du calendrier.</p></div>
+    </div>
+    <div class="sec">
+      <h3>Carte de contact</h3>
+      <article class="card">
+        <div class="band">
+          <span class="pict" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
+          <span class="when">Relance jeudi<small>dans 2 jours</small></span>
+          <span class="gate" aria-label="Étape 4 sur 5">4</span>
+        </div>
+        <div class="body">
+          <h4>Camille Roux</h4>
+          <p class="co">Atelier Roux · menuiserie</p>
+          <p class="stage"><b>4</b>Proposition envoyée</p>
+          <p class="last">Devis envoyé le 18 nov.</p>
+          <div class="row"><button class="btn btn-y">Relancer</button><button class="btn btn-s">Étape suivante</button></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="band late">
+          <span class="pict" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></span>
+          <span class="when">En retard<small>prévue le 20 nov., il y a 4 jours</small></span>
+          <span class="gate" aria-label="Étape 2 sur 5">2</span>
+        </div>
+        <div class="body">
+          <h4>Hugo Bernard</h4>
+          <p class="co">Studio Lumen · photographie</p>
+          <p class="stage"><b>2</b>Contacté</p>
+          <p class="last">Premier appel le 10 nov.</p>
+          <div class="row"><button class="btn btn-y">Relancer</button><button class="btn btn-s">Étape suivante</button></div>
+        </div>
+      </article>
+    </div>
+    <div class="sec why">
+      <p><b>Le geste signature :</b> le bandeau jaune avec le numéro d'étape en très grand, comme une porte.</p>
+      <p><b>Risque :</b> le jaune est puissant ; il faut le réserver aux relances, jamais à la décoration.</p>
+    </div>
+  </section>
+
+  <!-- ===================== C · LIGNE ===================== -->
+  <section class="sys c">
+    <header class="hd">
+      <h2>Ligne</h2>
+      <p>Le plan de métro. Le pipeline est une ligne, chaque étape une station ; un contact avance de station en station.</p>
+    </header>
+    <div class="sec">
+      <h3>Couleurs</h3>
+      <div class="sw">
+        <div data-tok="--line"><b>Ligne</b><span></span></div>
+        <div data-tok="--shell"><b>Nuit</b><span></span></div>
+        <div data-tok="--ground"><b>Fond</b><span></span></div>
+        <div data-tok="--danger"><b>Retard</b><span></span></div>
+        <div data-tok="--due"><b>À l'heure</b><span></span></div>
+        <div data-tok="--rule"><b>Filet</b><span></span></div>
+      </div>
+    </div>
+    <div class="sec type">
+      <h3>Typographie · Overpass</h3>
+      <p class="t-display">Relances du jour</p>
+      <p class="t-body">Camille Roux attend votre devis depuis six jours.</p>
+      <p class="t-meta">Dernier échange le 18 nov. · 3 contacts à relancer</p>
+    </div>
+    <div class="sec">
+      <h3>Boutons</h3>
+      <div class="row">
+        <button class="btn btn-p">Ajouter un contact</button>
+        <button class="btn btn-s">Changer d'étape</button>
+        <button class="btn btn-d">Supprimer</button>
+        <button class="btn btn-p" disabled>Enregistrer</button>
+      </div>
+    </div>
+    <div class="sec fields">
+      <h3>Champs</h3>
+      <div class="fld"><label>Nom<input class="in" placeholder="Prénom Nom" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Entreprise<input class="in is-focus" value="Atelier Roux" style="margin-top:5px"></label></div>
+      <div class="fld"><label>Date de relance<input class="in is-err" value="31/02/2026" style="margin-top:5px"></label><p class="err">Cette date n'existe pas. Choisissez un jour du calendrier.</p></div>
+    </div>
+    <div class="sec">
+      <h3>Carte de contact</h3>
+      <article class="card">
+        <div class="top">
+          <div><h4>Camille Roux</h4><p class="co">Atelier Roux · menuiserie</p></div>
+          <span class="due">Relance jeudi</span>
+        </div>
+        <div class="metro" role="img" aria-label="Étape 4 sur 5 : Proposition">
+          <svg viewBox="0 0 300 34">
+            <line class="done" x1="30" y1="17" x2="210" y2="17" stroke-width="6" stroke-linecap="round"/>
+            <line class="todo" x1="210" y1="17" x2="270" y2="17" stroke-width="6" stroke-linecap="round"/>
+            <circle class="st" cx="30" cy="17" r="6" stroke-width="3"/>
+            <circle class="st" cx="90" cy="17" r="6" stroke-width="3"/>
+            <circle class="st" cx="150" cy="17" r="6" stroke-width="3"/>
+            <circle class="st cur" cx="210" cy="17" r="11" stroke-width="3"/>
+            <circle class="st off" cx="270" cy="17" r="6" stroke-width="3"/>
+          </svg>
+          <div class="names"><span>À contacter</span><span>Contacté</span><span>Échange</span><span class="on">Proposition</span><span>Signé</span></div>
+        </div>
+        <p class="last">Devis envoyé le 18 nov.</p>
+        <div class="row"><button class="btn btn-p">Relancer</button><button class="btn btn-s">Station suivante</button></div>
+      </article>
+      <article class="card">
+        <div class="top">
+          <div><h4>Hugo Bernard</h4><p class="co">Studio Lumen · photographie</p></div>
+          <span class="due late">En retard · 4 j</span>
+        </div>
+        <div class="metro" role="img" aria-label="Étape 2 sur 5 : Contacté">
+          <svg viewBox="0 0 300 34">
+            <line class="done" x1="30" y1="17" x2="90" y2="17" stroke-width="6" stroke-linecap="round"/>
+            <line class="todo" x1="90" y1="17" x2="270" y2="17" stroke-width="6" stroke-linecap="round"/>
+            <circle class="st" cx="30" cy="17" r="6" stroke-width="3"/>
+            <circle class="st cur" cx="90" cy="17" r="11" stroke-width="3"/>
+            <circle class="st off" cx="150" cy="17" r="6" stroke-width="3"/>
+            <circle class="st off" cx="210" cy="17" r="6" stroke-width="3"/>
+            <circle class="st off" cx="270" cy="17" r="6" stroke-width="3"/>
+          </svg>
+          <div class="names"><span>À contacter</span><span class="on">Contacté</span><span>Échange</span><span>Proposition</span><span>Signé</span></div>
+        </div>
+        <p class="last">Premier appel le 10 nov.</p>
+        <div class="row"><button class="btn btn-p">Relancer</button><button class="btn btn-s">Station suivante</button></div>
+      </article>
+    </div>
+    <div class="sec why">
+      <p><b>Le geste signature :</b> la ligne de métro sur chaque carte, qui montre l'avancement d'un seul regard.</p>
+      <p><b>Risque :</b> la métaphore « pipeline = ligne » est la plus attendue des trois ; c'est la plus claire, la moins surprenante.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="band-dark">
+  <h2 class="mode-title dk">Thème sombre</h2>
+  <div class="grid" id="dark"></div>
+</div>
+
+<script>
+  // Le thème sombre réutilise exactement le même contenu : on clone chaque colonne
+  // et on lui ajoute la classe .dark, qui ne change que les tokens de couleur.
+  const dark = document.getElementById("dark");
+  document.querySelectorAll("#light .sys").forEach((sys) => {
+    const copy = sys.cloneNode(true);
+    copy.classList.add("dark");
+    copy.querySelectorAll("[id]").forEach((el) => {
+      const old = el.id; el.id = old + "-dk";
+      copy.querySelectorAll(`[href="#${old}"]`).forEach((u) => u.setAttribute("href", `#${old}-dk`));
+    });
+    dark.appendChild(copy);
+  });
+
+  // Nuancier : la couleur et son code viennent des tokens de chaque colonne.
+  const lum = (hex) => {
+    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => {
+      v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  document.querySelectorAll(".sw [data-tok]").forEach((s) => {
+    const hex = getComputedStyle(s.closest(".sys")).getPropertyValue(s.dataset.tok).trim().toUpperCase();
+    s.style.setProperty("--c", hex);
+    s.style.color = lum(hex) > 0.18 ? "#111111" : "#FFFFFF";
+    s.querySelector("span").textContent = hex;
+  });
+</script>
+</body>
+</html>

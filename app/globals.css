@@ -1,1 +1,153 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-barlow-condensed);
+    --font-sans: var(--font-public-sans);
+    --color-stamp: var(--stamp);
+    --color-stamp-late: var(--stamp-late);
+    --color-kraft: var(--kraft);
+    --color-kraft-foreground: var(--kraft-foreground);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Thème « Cachet » (clair) : papier gris-bleu, encre de tampon, rouge retard */
+:root {
+    --background: #EEF0F3;
+    --foreground: #14213D;
+    --card: #FFFFFF;
+    --card-foreground: #14213D;
+    --popover: #FFFFFF;
+    --popover-foreground: #14213D;
+    --primary: #1E3A8A;
+    --primary-foreground: #FFFFFF;
+    --secondary: #E3E9F7;
+    --secondary-foreground: #1E3A8A;
+    --muted: #E1E6EF;
+    --muted-foreground: #4B5670;
+    --accent: #E1E6EF;
+    --accent-foreground: #14213D;
+    --destructive: #B3261E;
+    --border: #D5DAE3;
+    --input: #B9C1CF;
+    --ring: #2F5BD3;
+    --chart-1: #1E3A8A;
+    --chart-2: #8A6424;
+    --chart-3: #2F5BD3;
+    --chart-4: #B3261E;
+    --chart-5: #4B5670;
+    --radius: 0.375rem;
+    --sidebar: #1E3A8A;
+    --sidebar-foreground: #F4F6FB;
+    --sidebar-primary: #FFFFFF;
+    --sidebar-primary-foreground: #1E3A8A;
+    --sidebar-accent: #182F72;
+    --sidebar-accent-foreground: #F4F6FB;
+    --sidebar-border: #2A4699;
+    --sidebar-ring: #8FA8FF;
+    /* Tokens propres à Cachet : tampon dateur et étiquette kraft */
+    --stamp: #1E3A8A;
+    --stamp-late: #B3261E;
+    --kraft: #F1E6D2;
+    --kraft-foreground: #6B4A16;
+    --selection: #C9D6F6;
+}
+
+/* Thème « Cachet » (sombre) : nuit d'encre */
+.dark {
+    --background: #0E1626;
+    --foreground: #E6EBF5;
+    --card: #16213A;
+    --card-foreground: #E6EBF5;
+    --popover: #16213A;
+    --popover-foreground: #E6EBF5;
+    --primary: #8FA8FF;
+    --primary-foreground: #0E1626;
+    --secondary: #22315A;
+    --secondary-foreground: #C7D4FF;
+    --muted: #1C2A47;
+    --muted-foreground: #A3AEC6;
+    --accent: #1C2A47;
+    --accent-foreground: #E6EBF5;
+    --destructive: #FF8A80;
+    --border: #26324F;
+    --input: #34405E;
+    --ring: #8FA8FF;
+    --chart-1: #8FA8FF;
+    --chart-2: #E8CF9F;
+    --chart-3: #5C7FE8;
+    --chart-4: #FF8A80;
+    --chart-5: #A3AEC6;
+    --sidebar: #16285E;
+    --sidebar-foreground: #E6EBF5;
+    --sidebar-primary: #8FA8FF;
+    --sidebar-primary-foreground: #0E1626;
+    --sidebar-accent: #1E3470;
+    --sidebar-accent-foreground: #E6EBF5;
+    --sidebar-border: #26324F;
+    --sidebar-ring: #8FA8FF;
+    --stamp: #8FA8FF;
+    --stamp-late: #FF8A80;
+    --kraft: #3A2E1A;
+    --kraft-foreground: #E8CF9F;
+    --selection: #2C4380;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1, h2, h3 {
+    @apply font-heading;
+  }
+  ::selection {
+    background-color: var(--selection);
+    color: var(--foreground);
+  }
+}

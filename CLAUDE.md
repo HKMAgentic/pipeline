@@ -10,7 +10,7 @@ Lis INTENT.md avant tout travail.
 
 Mini CRM de prospection mono-utilisateur. Les intentions produit, les contraintes et les critères d'acceptation sont dans `INTENT.md` : c'est la référence à relire avant toute décision d'architecture.
 
-État actuel : `app/page.tsx` affiche seulement « Pipeline ». Les 3 couches existent avec un exemple vide chacune (`presentation/example-view.tsx`, `services/example-service.ts`, `data/example-repository.ts`). Aucune base n'est encore branchée : le dépôt d'exemple renvoie une liste vide.
+État actuel : `app/page.tsx` affiche le titre « Pipeline », le bouton clair/sombre et un état vide. Les 3 couches existent avec un exemple vide chacune (`presentation/example-view.tsx`, `services/example-service.ts`, `data/example-repository.ts`). Aucune base n'est encore branchée : le dépôt d'exemple renvoie une liste vide.
 
 ## Commandes (pnpm uniquement)
 
@@ -31,6 +31,10 @@ Mini CRM de prospection mono-utilisateur. Les intentions produit, les contrainte
 - `next.config.ts` active `cacheComponents` et `partialPrefetching`. Ces options influencent le rendu et le cache des Server Components.
 - Tailwind CSS v4, chargé via un loader Turbopack (`@tailwindcss/turbopack`) déclaré dans `next.config.ts`. Pas de `tailwind.config` : `app/globals.css` fait seulement `@import "tailwindcss"`.
 - Alias d'import `@/*` → racine du projet.
+- shadcn/ui (style `base-nova`, primitives `@base-ui/react`, `cn` depuis le paquet `cn`) : composants dans `components/ui/`. Ajouter avec `pnpm dlx shadcn@latest add <nom>`.
+- Thème « Cachet » dans `app/globals.css` : clair dans `:root`, sombre dans `.dark`, toujours remplir les deux. Tokens propres : `stamp`, `stamp-late`, `kraft`, `kraft-foreground`. Polices via `next/font` dans `app/layout.tsx` : Public Sans (`font-sans`), Barlow Condensed (`font-heading`, titres h1–h3). Système visuel documenté dans `DESIGN.md`, produit dans `PRODUCT.md`.
+- Clair/sombre : `next-themes` (`presentation/theme-provider.tsx`, défaut = réglage système), bouton `presentation/theme-toggle.tsx`.
+- `design-options.html` : page statique de comparaison des 3 directions de design étudiées (Cachet retenue).
 - `pnpm-workspace.yaml` bloque les scripts de build de `sharp` et `unrs-resolver` (`allowBuilds: false`).
 
 ## Architecture visée (INTENT.md)
