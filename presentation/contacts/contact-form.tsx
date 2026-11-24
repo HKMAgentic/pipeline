@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STAGES } from "./demo-contacts";
 
 // Formulaire visible seulement : l'enregistrement sera branché avec la couche données.
@@ -33,16 +34,18 @@ export function ContactForm() {
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="etape">Étape</Label>
-          <select
-            id="etape"
-            name="etape"
-            defaultValue={STAGES[0]}
-            className="border-input bg-card focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 h-10 rounded-md border px-2.5 text-base outline-none focus-visible:ring-3 md:text-sm"
-          >
-            {STAGES.map((stage) => (
-              <option key={stage}>{stage}</option>
-            ))}
-          </select>
+          <Select name="etape" defaultValue={STAGES[0]}>
+            <SelectTrigger id="etape" className="h-10 w-full data-[size=default]:h-10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STAGES.map((stage) => (
+                <SelectItem key={stage} value={stage}>
+                  {stage}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="relance">Date de relance</Label>
