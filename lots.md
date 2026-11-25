@@ -13,10 +13,10 @@ Hypothèses :
 
 Je saisis un nom et une entreprise dans le formulaire, puis j'enregistre. Le contact apparaît dans la liste avec l'étape « À contacter » et y est toujours après un redémarrage. Les contacts fictifs disparaissent : la liste montre les vrais contacts.
 
-- [ ] Étant donné une liste vide, quand je saisis « Camille Roux » et « Atelier Roux » puis j'enregistre, alors la carte « Camille Roux » apparaît dans la liste avec l'étape « À contacter ».
-- [ ] Étant donné un champ Nom vide, quand j'enregistre, alors aucun contact n'est créé et le message « Le nom est obligatoire. » s'affiche sous le champ.
-- [ ] Étant donné un contact ajouté, quand je redémarre l'application, alors il est toujours affiché dans la liste.
-- [ ] Étant donné aucun contact enregistré, quand j'ouvre l'application, alors je vois « Aucun contact pour l'instant » et aucune donnée fictive.
+- [x] Étant donné une liste vide, quand je saisis « Camille Roux » et « Atelier Roux » puis j'enregistre, alors la carte « Camille Roux » apparaît dans la liste avec l'étape « À contacter ».
+- [x] Étant donné un champ Nom vide, quand j'enregistre, alors aucun contact n'est créé et le message « Le nom est obligatoire. » s'affiche sous le champ.
+- [x] Étant donné un contact ajouté, quand je redémarre l'application, alors il est toujours affiché dans la liste.
+- [x] Étant donné aucun contact enregistré, quand j'ouvre l'application, alors je vois « Aucun contact pour l'instant » et aucune donnée fictive.
 
 ## Lot 2 · Programmer la date de relance d'un contact
 
