@@ -1,13 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ContactCard } from "@/presentation/contacts/contact-card";
-import { demoContacts } from "@/presentation/contacts/demo-contacts";
 
 describe("carte de contact", () => {
-  it("affiche le nom, l'étape et le tampon de relance lisible", () => {
-    const html = renderToStaticMarkup(<ContactCard contact={demoContacts[0]} />);
+  it("affiche le nom, l'entreprise et l'étape", () => {
+    const html = renderToStaticMarkup(
+      <ContactCard contact={{ id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté" }} />,
+    );
     expect(html).toContain("Hugo Bernard");
+    expect(html).toContain("Studio Lumen");
     expect(html).toContain("Contacté");
-    expect(html).toContain('aria-label="Relance en retard de 4 jours, prévue le vendredi 20 novembre"');
+  });
+
+  it("ne montre pas encore les boutons des lots suivants", () => {
+    const html = renderToStaticMarkup(
+      <ContactCard contact={{ id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté" }} />,
+    );
+    expect(html).not.toContain("Relancer");
+    expect(html).not.toContain("Étape suivante");
   });
 });

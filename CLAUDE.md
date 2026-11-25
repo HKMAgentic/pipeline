@@ -10,7 +10,11 @@ Lis INTENT.md avant tout travail.
 
 Mini CRM de prospection mono-utilisateur. Les intentions produit, les contraintes et les critères d'acceptation sont dans `INTENT.md` : c'est la référence à relire avant toute décision d'architecture.
 
-État actuel : `app/page.tsx` affiche le titre « Pipeline », le bouton clair/sombre et un état vide. Les 3 couches existent avec un exemple vide chacune (`presentation/example-view.tsx`, `services/example-service.ts`, `data/example-repository.ts`). Aucune base n'est encore branchée : le dépôt d'exemple renvoie une liste vide.
+État actuel : lot 1 livré (voir `lots.md` et `doc/plan/plan-lot-1.md`). On ajoute un contact (nom, entreprise) et il apparaît dans la liste, persistée en base.
+- Base : libSQL (`@libsql/client`), fichier local `pipeline.db` (ignoré par git) ou `DATABASE_URL` dans `.env.local`. Dépôt : `data/contact-repository.ts`.
+- Règles : `services/contacts.ts` (ajout, validation du nom, liste), `services/stages.ts` (étapes).
+- Écran : `presentation/contacts/` (formulaire, liste, carte). Branchement dépôt → service dans `app/contacts-actions.ts`, seule exception à la règle « app n'importe pas @/data ».
+- `page.tsx` lit la liste dans un `<Suspense>` après `connection()` (exigé par `cacheComponents`), l'action appelle `refresh()` de `next/cache`.
 
 ## Commandes (pnpm uniquement)
 

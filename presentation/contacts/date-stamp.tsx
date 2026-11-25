@@ -1,9 +1,16 @@
 import { cn } from "@/lib/utils";
-import type { ContactView } from "./demo-contacts";
+
+// Prêt pour le lot 2 (date de relance), pas encore affiché.
+export type FollowUpView = {
+  late: boolean;
+  date: string; // ex. « 26·11 »
+  caption: string; // ex. « JEUDI » ou « −4 JOURS »
+  label: string; // phrase complète pour les lecteurs d'écran
+};
 
 // Le geste signature de Cachet : la date de relance imprimée comme un tampon dateur.
 // Deux encres seulement : bleu à l'heure, rouge en retard.
-export function DateStamp({ followUp, className }: { followUp: ContactView["followUp"]; className?: string }) {
+export function DateStamp({ followUp, className }: { followUp: FollowUpView; className?: string }) {
   return (
     <svg
       viewBox="0 0 100 100"

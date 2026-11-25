@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { Stage } from "./demo-contacts";
+import type { Stage } from "@/services/stages";
 
 // Étapes précoces en kraft (la seule note chaude), étapes avancées en encre bleue.
 const EARLY: Stage[] = ["À contacter", "Contacté"];

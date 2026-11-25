@@ -1,23 +1,25 @@
+import { connection } from "next/server";
+import { Suspense } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ContactCard } from "@/presentation/contacts/contact-card";
 import { ContactForm } from "@/presentation/contacts/contact-form";
-import { demoContacts } from "@/presentation/contacts/demo-contacts";
+import { ContactList } from "@/presentation/contacts/contact-list";
 import { ThemeToggle } from "@/presentation/theme-toggle";
+import { addContactAction, loadContacts } from "./contacts-actions";
+
+// Lue à chaque requête : la liste ne doit pas être figée dans la page pré-générée.
+async function Contacts() {
+  await connection();
+  const contacts = await loadContacts();
+  return <ContactList contacts={contacts} />;
+}
 
 export default function Home() {
-  const lateCount = demoContacts.filter((c) => c.followUp.late).length;
-
   return (
     <>
       <header className="bg-sidebar text-sidebar-foreground">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6">
-          <div>
-            <h1 className="text-4xl font-bold tracking-wide uppercase sm:text-5xl">Pipeline</h1>
-            <p className="mt-1 text-sm opacity-90">
-              {demoContacts.length} relances à faire, dont {lateCount} en retard · données d’exemple
-            </p>
-          </div>
+          <h1 className="text-4xl font-bold tracking-wide uppercase sm:text-5xl">Pipeline</h1>
           <div className="flex items-center gap-2">
             <a
               href="#nouveau-contact"
@@ -34,18 +36,18 @@ export default function Home() {
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-        <section aria-labelledby="relances-titre">
-          <h2 id="relances-titre" className="text-3xl font-bold tracking-wide uppercase">
-            Relances du jour
+        <section aria-labelledby="contacts-titre">
+          <h2 id="contacts-titre" className="text-3xl font-bold tracking-wide uppercase">
+            Contacts
           </h2>
-          <div className="mt-4 grid gap-3">
-            {demoContacts.map((contact) => (
-              <ContactCard key={contact.id} contact={contact} />
-            ))}
+          <div className="mt-4">
+            <Suspense fallback={<p className="text-muted-foreground text-sm">Chargement des contacts…</p>}>
+              <Contacts />
+            </Suspense>
           </div>
         </section>
         <aside className="lg:sticky lg:top-6">
-          <ContactForm />
+          <ContactForm action={addContactAction} />
         </aside>
       </main>
     </>
