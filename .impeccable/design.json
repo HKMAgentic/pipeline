@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-24T00:00:00Z",
+  "title": "Design System: Pipeline",
+  "extensions": {
+    "colorMeta": {
+      "background": { "role": "neutral", "displayName": "Papier gris-bleu", "canonical": "#EEF0F3", "dark": "#0E1626", "tonalRamp": ["#141A24", "#252D3B", "#3B4454", "#5A6373", "#838B99", "#ADB3BE", "#D3D7DE", "#EEF0F3"] },
+      "foreground": { "role": "neutral", "displayName": "Encre marine", "canonical": "#14213D", "dark": "#E6EBF5", "tonalRamp": ["#0B1324", "#14213D", "#26365A", "#3E4F75", "#5F6F93", "#8693B0", "#B4BDD0", "#E6EBF5"] },
+      "card": { "role": "neutral", "displayName": "Feuille blanche", "canonical": "#FFFFFF", "dark": "#16213A" },
+      "primary": { "role": "primary", "displayName": "Encre de tampon", "canonical": "#1E3A8A", "dark": "#8FA8FF", "tonalRamp": ["#0F1F4D", "#182F72", "#1E3A8A", "#2F5BD3", "#5C7FE8", "#8FA8FF", "#C7D4FF", "#E3E9F7"] },
+      "secondary": { "role": "secondary", "displayName": "Pli bleuté", "canonical": "#E3E9F7", "dark": "#22315A" },
+      "muted": { "role": "neutral", "displayName": "Gris de tri", "canonical": "#E1E6EF", "dark": "#1C2A47" },
+      "muted-foreground": { "role": "neutral", "displayName": "Encre délavée", "canonical": "#4B5670", "dark": "#A3AEC6" },
+      "destructive": { "role": "tertiary", "displayName": "Rouge d'oblitération", "canonical": "#B3261E", "dark": "#FF8A80", "tonalRamp": ["#4A0F0B", "#7A1A14", "#B3261E", "#D9473C", "#F06A5F", "#FF8A80", "#FFC2BC", "#FDE7E5"] },
+      "border": { "role": "neutral", "displayName": "Filet", "canonical": "#D5DAE3", "dark": "#26324F" },
+      "input": { "role": "neutral", "displayName": "Bord de champ", "canonical": "#B9C1CF", "dark": "#34405E" },
+      "ring": { "role": "primary", "displayName": "Bleu de focus", "canonical": "#2F5BD3", "dark": "#8FA8FF" },
+      "stamp": { "role": "primary", "displayName": "Encre de tampon (à l'heure)", "canonical": "#1E3A8A", "dark": "#8FA8FF" },
+      "stamp-late": { "role": "tertiary", "displayName": "Encre de tampon (en retard)", "canonical": "#B3261E", "dark": "#FF8A80" },
+      "kraft": { "role": "secondary", "displayName": "Kraft", "canonical": "#F1E6D2", "dark": "#3A2E1A", "tonalRamp": ["#2A2010", "#3A2E1A", "#6B4A16", "#8A6424", "#B48E52", "#E8CF9F", "#F1E6D2", "#FAF5EC"] },
+      "kraft-foreground": { "role": "secondary", "displayName": "Brun kraft", "canonical": "#6B4A16", "dark": "#E8CF9F" },
+      "selection": { "role": "neutral", "displayName": "Surlignage", "canonical": "#C9D6F6", "dark": "#2C4380" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Titre de page en capitales (text-4xl, font-bold, uppercase, tracking-wide), un par écran." },
+      "title": { "displayName": "Title", "purpose": "Titres de carte (CardTitle, font-heading)." },
+      "body": { "displayName": "Body", "purpose": "Texte courant." },
+      "body-ui": { "displayName": "Body UI", "purpose": "Texte dans les cartes, descriptions, champs sur ordinateur." },
+      "label": { "displayName": "Label", "purpose": "Libellés de champ et texte des boutons." },
+      "stamp": { "displayName": "Stamp", "purpose": "Texte du tampon dateur uniquement (SVG)." }
+    },
+    "themes": {
+      "strategy": "next-themes, attribute=class, defaultTheme=system ; :root = clair, .dark = sombre. Les deux thèmes sont obligatoires pour toute surface."
+    },
+    "shadows": [
+      { "name": "contact-card (provisoire)", "value": "0 1px 2px rgba(20,33,61,.06), 0 4px 12px rgba(20,33,61,.05)", "valueDark": "0 1px 2px rgba(0,0,0,.4), 0 6px 16px rgba(0,0,0,.25)", "purpose": "Ombre diffuse de la carte de contact de la maquette Cachet ; pas encore construite. La Card shadcn livrée n'a pas d'ombre (anneau ring-1 foreground/10)." }
+    ],
+    "motion": [
+      { "name": "control-transition", "value": "transition-all (Tailwind, 150ms cubic-bezier(0.4, 0, 0.2, 1))", "purpose": "Changements de couleur des boutons ; enfoncement translateY(1px) au clic." },
+      { "name": "theme-switch", "value": "disableTransitionOnChange", "purpose": "Pas d'animation au changement de thème." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px", "purpose": "Les champs passent de 16px à 14px." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale (« Ajouter un contact », « Relancer »).",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Ajouter un contact</button>",
+      "css": ".ds-btn { font-family: var(--font-public-sans, 'Public Sans', sans-serif); display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 10px; font-size: 14px; font-weight: 500; border-radius: var(--radius, 6px); border: 1px solid transparent; cursor: pointer; transition: all .15s cubic-bezier(.4,0,.2,1); outline: none; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { border-color: var(--ring, #2F5BD3); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, #2F5BD3) 50%, transparent); } .ds-btn-primary { background: var(--primary, #1E3A8A); color: var(--primary-foreground, #FFFFFF); } .ds-btn-primary:hover { background: color-mix(in oklch, var(--primary, #1E3A8A) 80%, transparent); }"
+    },
+    {
+      "name": "Bouton outline",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Action secondaire (« Étape suivante ») et bouton de thème.",
+      "html": "<button class=\"ds-btn-outline\">Étape suivante</button>",
+      "css": ".ds-btn-outline { font-family: var(--font-public-sans, 'Public Sans', sans-serif); display: inline-flex; align-items: center; height: 32px; padding: 0 10px; font-size: 14px; font-weight: 500; border-radius: var(--radius, 6px); border: 1px solid var(--border, #D5DAE3); background: var(--background, #EEF0F3); color: var(--foreground, #14213D); cursor: pointer; transition: all .15s; outline: none; } .ds-btn-outline:hover { background: var(--muted, #E1E6EF); } .ds-btn-outline:active { transform: translateY(1px); } .ds-btn-outline:focus-visible { border-color: var(--ring, #2F5BD3); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, #2F5BD3) 50%, transparent); }"
+    },
+    {
+      "name": "Bouton destructif",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Suppression : fond rouge teinté à 10 %, jamais d'aplat plein.",
+      "html": "<button class=\"ds-btn-destructive\">Supprimer</button>",
+      "css": ".ds-btn-destructive { font-family: var(--font-public-sans, 'Public Sans', sans-serif); display: inline-flex; align-items: center; height: 32px; padding: 0 10px; font-size: 14px; font-weight: 500; border-radius: var(--radius, 6px); border: 1px solid transparent; background: color-mix(in oklch, var(--destructive, #B3261E) 10%, transparent); color: var(--destructive, #B3261E); cursor: pointer; transition: all .15s; outline: none; } .ds-btn-destructive:hover { background: color-mix(in oklch, var(--destructive, #B3261E) 20%, transparent); } .ds-btn-destructive:focus-visible { border-color: color-mix(in oklch, var(--destructive, #B3261E) 40%, transparent); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive, #B3261E) 20%, transparent); }"
+    },
+    {
+      "name": "Champ (normal et erreur)",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Champ shadcn ; l'état d'erreur passe par aria-invalid et un message sous le champ.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-label\">Date de relance</span><input class=\"ds-input\" aria-invalid=\"true\" value=\"31/02/2026\"><span class=\"ds-err\">Cette date n'existe pas. Choisissez un jour du calendrier.</span></label>",
+      "css": ".ds-field { display: grid; gap: 6px; font-family: var(--font-public-sans, 'Public Sans', sans-serif); color: var(--foreground, #14213D); } .ds-label { font-size: 14px; font-weight: 500; line-height: 1; } .ds-input { height: 32px; padding: 4px 10px; font: inherit; font-size: 14px; color: inherit; background: transparent; border: 1px solid var(--input, #B9C1CF); border-radius: var(--radius, 6px); outline: none; transition: border-color .15s, box-shadow .15s; } .ds-input::placeholder { color: var(--muted-foreground, #4B5670); } .ds-input:focus-visible { border-color: var(--ring, #2F5BD3); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, #2F5BD3) 50%, transparent); } .ds-input[aria-invalid=true] { border-color: var(--destructive, #B3261E); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive, #B3261E) 20%, transparent); } .ds-err { font-size: 12.5px; color: var(--destructive, #B3261E); }"
+    },
+    {
+      "name": "Étiquettes d'étape",
+      "kind": "chip",
+      "refersTo": "chip-stage",
+      "description": "Provisoire (maquette Cachet). Bleu par défaut, kraft pour les étapes précoces ou en attente.",
+      "html": "<span class=\"ds-chip\">Proposition envoyée</span> <span class=\"ds-chip ds-chip-kraft\">Contacté</span>",
+      "css": ".ds-chip { display: inline-flex; font-family: var(--font-public-sans, 'Public Sans', sans-serif); font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 4px; background: var(--secondary, #E3E9F7); color: var(--secondary-foreground, #1E3A8A); } .ds-chip-kraft { background: var(--kraft, #F1E6D2); color: var(--kraft-foreground, #6B4A16); }"
+    },
+    {
+      "name": "Carte",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card shadcn livrée : feuille posée sur le papier, anneau fin, pas d'ombre.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Camille Roux</div><div class=\"ds-card-desc\">Atelier Roux · menuiserie</div></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: calc(var(--radius, 6px) * 1.4); background: var(--card, #FFFFFF); color: var(--card-foreground, #14213D); box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground, #14213D) 10%, transparent); font-family: var(--font-public-sans, 'Public Sans', sans-serif); font-size: 14px; } .ds-card-title { font-family: var(--font-barlow-condensed, 'Barlow Condensed', sans-serif); font-size: 16px; font-weight: 500; line-height: 1.375; } .ds-card-desc { color: var(--muted-foreground, #4B5670); }"
+    },
+    {
+      "name": "Tampon dateur",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "Geste signature, provisoire (maquette Cachet) : date de relance en tampon circulaire, bleu à l'heure (-9°), rouge en retard (+6°).",
+      "html": "<div class=\"ds-stamps\"><svg class=\"ds-stamp\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"Relance prévue le jeudi 26 novembre\"><path id=\"ds-arc1\" d=\"M 18 50 A 32 32 0 0 1 82 50\" fill=\"none\"/><circle cx=\"50\" cy=\"50\" r=\"46\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><circle cx=\"50\" cy=\"50\" r=\"39\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1\"/><text font-size=\"11\" letter-spacing=\"2\"><textPath href=\"#ds-arc1\" startOffset=\"50%\" text-anchor=\"middle\">RELANCE</textPath></text><text x=\"50\" y=\"58\" font-size=\"21\" text-anchor=\"middle\">26·11</text><text x=\"50\" y=\"74\" font-size=\"10\" letter-spacing=\"1.5\" text-anchor=\"middle\">JEUDI</text></svg><svg class=\"ds-stamp ds-stamp-late\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"Relance en retard de 4 jours, prévue le vendredi 20 novembre\"><path id=\"ds-arc2\" d=\"M 18 50 A 32 32 0 0 1 82 50\" fill=\"none\"/><circle cx=\"50\" cy=\"50\" r=\"46\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><circle cx=\"50\" cy=\"50\" r=\"39\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1\"/><text font-size=\"11\" letter-spacing=\"2\"><textPath href=\"#ds-arc2\" startOffset=\"50%\" text-anchor=\"middle\">EN RETARD</textPath></text><text x=\"50\" y=\"58\" font-size=\"21\" text-anchor=\"middle\">20·11</text><text x=\"50\" y=\"74\" font-size=\"10\" letter-spacing=\"1.5\" text-anchor=\"middle\">−4 JOURS</text></svg></div>",
+      "css": ".ds-stamps { display: flex; gap: 24px; padding: 8px; } .ds-stamp { width: 92px; height: 92px; color: var(--stamp, #1E3A8A); transform: rotate(-9deg); } .ds-stamp-late { color: var(--stamp-late, #B3261E); transform: rotate(6deg); } .ds-stamp text { font-family: var(--font-barlow-condensed, 'Barlow Condensed', sans-serif); font-weight: 700; fill: currentColor; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Cachet",
+    "overview": "Pipeline vit dans le monde du courrier. Chaque relance est une lettre à poster, et sa date s'imprime comme un tampon dateur : encre bleue quand on est à l'heure, encre rouge quand on est en retard. Le fond est un papier gris-bleu, le texte une encre marine, les étiquettes d'étape précoces sont en papier kraft. Le monde n'apporte que quatre choses : la typographie, la palette, la densité et un seul geste signature, le tampon. La navigation et les contrôles restent des composants web standard (shadcn, style base-nova), sans déguisement postal.\n\nL'outil est mono-utilisateur et se consulte en session de travail sur ordinateur : densité moyenne, contrôles compacts, une question prioritaire à l'écran (« qui relancer aujourd'hui ? »). Le tampon répond à cette question d'un coup d'œil ; tout le reste se tait autour de lui. L'interface est en français.\n\nLes thèmes clair et sombre sont tous deux de premier rang. Le thème suit le réglage du système par défaut (classe `.dark` posée sur `<html>`), et chaque token a sa valeur claire et sa valeur sombre (« nuit d'encre »). Aucune surface, maquette ou composant n'est livré dans un seul thème.",
+    "keyCharacteristics": [
+      "Papier gris-bleu, encre marine, un seul bleu d'action.",
+      "Titres condensés en capitales (Barlow Condensed), corps en Public Sans.",
+      "Le tampon dateur circulaire et légèrement tourné est le seul élément « du monde » ; il reste petit et rare.",
+      "Rouge réservé au retard et aux erreurs ou actions destructives.",
+      "Contrôles shadcn standard, compacts, coins doucement arrondis (6px).",
+      "Clair et sombre toujours livrés ensemble."
+    ],
+    "rules": [
+      { "name": "The Two Inks Rule", "body": "Le tampon n'a que deux encres : `stamp` (à l'heure) et `stamp-late` (en retard). Pas de troisième état coloré, pas de vert, pas d'orange.", "section": "colors" },
+      { "name": "The Red Means Late Rule", "body": "Le rouge signale un retard, une erreur ou une destruction, rien d'autre. Jamais de rouge décoratif.", "section": "colors" },
+      { "name": "The One Warm Note Rule", "body": "Le kraft est la seule couleur chaude ; il ne sert qu'aux étiquettes d'étape précoces ou en attente.", "section": "colors" },
+      { "name": "The Condensed Is For Headings Rule", "body": "Barlow Condensed ne sert qu'aux titres (h1 à h3, titres de carte) et au tampon. Jamais pour un paragraphe, un champ ou un bouton.", "section": "typography" },
+      { "name": "The Paper On Paper Rule", "body": "La profondeur se lit comme une feuille posée sur une autre : changement de ton et filet fin. Pas d'ombre portée dure, pas d'empilement de calques.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** livrer chaque écran, composant et maquette en thème clair et en thème sombre, avec les tokens des deux thèmes.",
+      "**Do** passer par les tokens (`primary`, `stamp`, `kraft`…) plutôt que par des couleurs en dur.",
+      "**Do** donner au tampon un `aria-label` qui dit la date et l'état (à l'heure ou en retard).",
+      "**Do** garder les contrôles shadcn standard ; le monde postal s'exprime par la couleur, la typographie et le tampon.",
+      "**Do** écrire toute l'interface en français."
+    ],
+    "donts": [
+      "**Don't** poser plus d'un tampon par carte de contact, ni de tampon ailleurs que sur une relance datée.",
+      "**Don't** tourner autre chose que le tampon.",
+      "**Don't** utiliser le rouge hors retard, erreur ou destruction.",
+      "**Don't** déguiser la navigation ou les contrôles en objets postaux (enveloppes, timbres, boîtes aux lettres).",
+      "**Don't** utiliser Barlow Condensed pour le texte courant, les champs ou les boutons."
+    ]
+  }
+}
