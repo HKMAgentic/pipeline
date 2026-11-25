@@ -19,13 +19,15 @@ export async function loadContacts() {
 }
 
 export async function addContactAction(_state: ContactFormState, formData: FormData): Promise<ContactFormState> {
-  const result = await addContact(getRepository(), {
+  const values = {
     name: String(formData.get("nom") ?? ""),
     company: String(formData.get("entreprise") ?? ""),
-  });
+  };
+  const result = await addContact(getRepository(), values);
 
   if (!result.ok) {
-    return { error: result.error };
+    // On renvoie la saisie pour que le formulaire la réaffiche.
+    return { error: result.error, values };
   }
 
   refresh();

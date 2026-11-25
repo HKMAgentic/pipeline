@@ -26,4 +26,14 @@ describe("formulaire nouveau contact", () => {
     expect(html).toContain('aria-invalid="true"');
     expect(html).toContain('aria-describedby="nom-erreur"');
   });
+
+  it("garde l'entreprise saisie quand le nom manque", () => {
+    const html = renderToStaticMarkup(
+      <ContactForm
+        action={fakeAction}
+        initialState={{ error: "name_required", values: { name: "", company: "Sans nom SARL" } }}
+      />,
+    );
+    expect(html).toContain('value="Sans nom SARL"');
+  });
 });

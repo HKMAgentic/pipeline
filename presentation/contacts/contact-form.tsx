@@ -6,7 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AddContactError } from "@/services/contacts";
 
-export type ContactFormState = { error: AddContactError | null };
+// `values` : ce qui a été saisi, pour le réafficher quand l'enregistrement est refusé.
+export type ContactFormState = {
+  error: AddContactError | null;
+  values?: { name: string; company: string };
+};
 
 const ERROR_MESSAGES: Record<AddContactError, string> = {
   name_required: "Le nom est obligatoire.",
@@ -41,6 +45,7 @@ export function ContactForm({ action, initialState = { error: null } }: ContactF
             placeholder="Prénom Nom"
             autoComplete="off"
             className="h-10"
+            defaultValue={state.values?.name}
             aria-invalid={nameError ? true : undefined}
             aria-describedby={nameError ? "nom-erreur" : undefined}
           />
@@ -52,7 +57,14 @@ export function ContactForm({ action, initialState = { error: null } }: ContactF
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="entreprise">Entreprise</Label>
-          <Input id="entreprise" name="entreprise" placeholder="Nom de l’entreprise" autoComplete="off" className="h-10" />
+          <Input
+            id="entreprise"
+            name="entreprise"
+            placeholder="Nom de l’entreprise"
+            autoComplete="off"
+            className="h-10"
+            defaultValue={state.values?.company}
+          />
         </div>
         <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
           {pending ? "Enregistrement…" : "Enregistrer le contact"}
