@@ -58,11 +58,14 @@ function toRecord(row: Row): ContactRecord {
 }
 
 // En local : un fichier SQLite à la racine du projet.
-// Pour une base hébergée, définir DATABASE_URL dans `.env.local`.
+// Pour une base hébergée (Turso), définir DATABASE_URL et DATABASE_AUTH_TOKEN dans `.env.local`.
 const DEFAULT_URL = "file:pipeline.db";
 
-export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAULT_URL): ContactRepository {
-  const client = createClient({ url });
+export function createContactRepository(
+  url = process.env.DATABASE_URL || DEFAULT_URL,
+  authToken = process.env.DATABASE_AUTH_TOKEN || undefined,
+): ContactRepository {
+  const client = createClient({ url, authToken });
 
   // La table est préparée une seule fois, au premier accès.
   let ready: Promise<void> | undefined;
