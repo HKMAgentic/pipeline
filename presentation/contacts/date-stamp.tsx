@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-// Prêt pour le lot 2 (date de relance), pas encore affiché.
+// Le texte du tampon, mis en forme par `toFollowUpView`.
 export type FollowUpView = {
   late: boolean;
   date: string; // ex. « 26·11 »

@@ -22,10 +22,10 @@ Je saisis un nom et une entreprise dans le formulaire, puis j'enregistre. Le con
 
 Je choisis une date de relance, en créant le contact ou plus tard sur sa carte. La carte affiche cette date sous forme de tampon : bleu si elle est à venir, rouge si elle est dépassée.
 
-- [ ] Étant donné le formulaire, quand je choisis le 26/11 et j'enregistre, alors la carte affiche un tampon bleu « 26·11 ».
-- [ ] Étant donné un contact à relancer le 20/11 et la date du jour au 24/11, quand j'ouvre la liste, alors son tampon est rouge et indique « EN RETARD · −4 JOURS ».
-- [ ] Étant donné un contact sans date de relance, quand j'ouvre la liste, alors sa carte n'a pas de tampon et indique « Pas de relance prévue ».
-- [ ] Étant donné une date de relance modifiée sur une carte, quand je redémarre l'application, alors la nouvelle date est conservée.
+- [x] Étant donné le formulaire, quand je choisis le 26/11 et j'enregistre, alors la carte affiche un tampon bleu « 26·11 ».
+- [x] Étant donné un contact à relancer le 20/11 et la date du jour au 24/11, quand j'ouvre la liste, alors son tampon est rouge et indique « EN RETARD · −4 JOURS ».
+- [x] Étant donné un contact sans date de relance, quand j'ouvre la liste, alors sa carte n'a pas de tampon et indique « Pas de relance prévue ».
+- [x] Étant donné une date de relance modifiée sur une carte, quand je redémarre l'application, alors la nouvelle date est conservée.
 
 ## Lot 3 · Voir qui relancer aujourd'hui
 

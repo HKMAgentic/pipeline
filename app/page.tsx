@@ -5,13 +5,14 @@ import { cn } from "@/lib/utils";
 import { ContactForm } from "@/presentation/contacts/contact-form";
 import { ContactList } from "@/presentation/contacts/contact-list";
 import { ThemeToggle } from "@/presentation/theme-toggle";
-import { addContactAction, loadContacts } from "./contacts-actions";
+import { addContactAction, loadContacts, setFollowUpAction } from "./contacts-actions";
 
-// Lue à chaque requête : la liste ne doit pas être figée dans la page pré-générée.
+// Lue à chaque requête : la liste (et la date du jour qui calcule les retards)
+// ne doit pas être figée dans la page pré-générée.
 async function Contacts() {
   await connection();
   const contacts = await loadContacts();
-  return <ContactList contacts={contacts} />;
+  return <ContactList contacts={contacts} setFollowUpAction={setFollowUpAction} />;
 }
 
 export default function Home() {

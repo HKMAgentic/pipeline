@@ -5,12 +5,26 @@ import { ContactForm } from "@/presentation/contacts/contact-form";
 const fakeAction = async () => ({ error: null });
 
 describe("formulaire nouveau contact", () => {
-  it("propose seulement les champs Nom et Entreprise", () => {
+  it("propose les champs Nom, Entreprise et Date de relance (facultative)", () => {
     const html = renderToStaticMarkup(<ContactForm action={fakeAction} />);
     expect(html).toContain('name="nom"');
     expect(html).toContain('name="entreprise"');
+    expect(html).toMatch(/type="date"[^>]*name="relance"|name="relance"[^>]*type="date"/);
+    expect(html).toContain("Date de relance");
     expect(html).not.toContain('name="etape"');
-    expect(html).not.toContain('name="relance"');
+  });
+
+  it("affiche « Cette date n'existe pas. » sous le champ Date de relance, en gardant la saisie", () => {
+    const html = renderToStaticMarkup(
+      <ContactForm
+        action={fakeAction}
+        initialState={{ error: "invalid_date", values: { name: "Camille Roux", company: "", followUpDate: "" } }}
+      />,
+    );
+    expect(html).toContain("Cette date n’existe pas. Choisissez un jour du calendrier.");
+    expect(html).toContain('aria-describedby="relance-erreur"');
+    expect(html).not.toContain("Le nom est obligatoire.");
+    expect(html).toContain('value="Camille Roux"');
   });
 
   it("n'affiche pas de message d'erreur au départ", () => {

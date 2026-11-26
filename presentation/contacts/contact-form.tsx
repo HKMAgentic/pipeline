@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AddContactError } from "@/services/contacts";
+import { FOLLOW_UP_ERROR_MESSAGES } from "./follow-up-form";
 
 // `values` : ce qui a été saisi, pour le réafficher quand l'enregistrement est refusé.
 export type ContactFormState = {
   error: AddContactError | null;
-  values?: { name: string; company: string };
-};
-
-const ERROR_MESSAGES: Record<AddContactError, string> = {
-  name_required: "Le nom est obligatoire.",
+  values?: { name: string; company: string; followUpDate?: string };
 };
 
 type ContactFormProps = {
@@ -23,7 +20,8 @@ type ContactFormProps = {
 
 export function ContactForm({ action, initialState = { error: null } }: ContactFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
-  const nameError = state.error ? ERROR_MESSAGES[state.error] : null;
+  const nameError = state.error === "name_required" ? "Le nom est obligatoire." : null;
+  const dateError = state.error === "invalid_date" ? FOLLOW_UP_ERROR_MESSAGES.invalid_date : null;
 
   return (
     <form
@@ -65,6 +63,25 @@ export function ContactForm({ action, initialState = { error: null } }: ContactF
             className="h-10"
             defaultValue={state.values?.company}
           />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="relance">
+            Date de relance <span className="text-muted-foreground font-normal">(facultatif)</span>
+          </Label>
+          <Input
+            id="relance"
+            type="date"
+            name="relance"
+            className="h-10"
+            defaultValue={state.values?.followUpDate}
+            aria-invalid={dateError ? true : undefined}
+            aria-describedby={dateError ? "relance-erreur" : undefined}
+          />
+          {dateError && (
+            <p id="relance-erreur" role="alert" className="text-destructive text-sm">
+              {dateError}
+            </p>
+          )}
         </div>
         <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
           {pending ? "Enregistrement…" : "Enregistrer le contact"}
