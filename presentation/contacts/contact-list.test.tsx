@@ -9,17 +9,18 @@ describe("liste des contacts", () => {
     const html = renderToStaticMarkup(
       <ContactList
         contacts={[{ id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "À contacter", followUp: null }]}
+        emptyMessage="Rien ici"
         setFollowUpAction={fakeAction}
       />,
     );
     expect(html).toContain("Camille Roux");
     expect(html).toContain("Atelier Roux");
     expect(html).toContain("À contacter");
-    expect(html).not.toContain("Aucun contact pour l’instant");
+    expect(html).not.toContain("Rien ici");
   });
 
-  it("affiche « Aucun contact pour l'instant » quand la liste est vide", () => {
-    const html = renderToStaticMarkup(<ContactList contacts={[]} setFollowUpAction={fakeAction} />);
-    expect(html).toContain("Aucun contact pour l’instant");
+  it("affiche le message reçu quand la liste est vide", () => {
+    const html = renderToStaticMarkup(<ContactList contacts={[]} emptyMessage="Rien ici" setFollowUpAction={fakeAction} />);
+    expect(html).toContain("Rien ici");
   });
 });

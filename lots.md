@@ -31,11 +31,11 @@ Je choisis une date de relance, en créant le contact ou plus tard sur sa carte.
 
 À l'ouverture, la section « Relances du jour » montre seulement les contacts à relancer aujourd'hui ou en retard, les plus en retard en tête. Les autres contacts sont rangés dans une section « À venir », et le bandeau du haut donne le compte.
 
-- [ ] Étant donné 3 contacts (en retard de 4 jours, à relancer aujourd'hui, à relancer dans 5 jours), quand j'ouvre l'application, alors « Relances du jour » montre les 2 premiers, le plus en retard en tête.
-- [ ] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors celui à relancer dans 5 jours apparaît dans « À venir » et pas dans « Relances du jour ».
-- [ ] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors le bandeau affiche « 2 relances à faire, dont 1 en retard ».
-- [ ] Étant donné aucun contact à relancer aujourd'hui ni en retard, quand j'ouvre l'application, alors « Relances du jour » affiche « Rien à relancer aujourd'hui ».
-- [ ] Étant donné un contact à relancer demain, quand j'ouvre l'application le lendemain, alors il est passé dans « Relances du jour ».
+- [x] Étant donné 3 contacts (en retard de 4 jours, à relancer aujourd'hui, à relancer dans 5 jours), quand j'ouvre l'application, alors « Relances du jour » montre les 2 premiers, le plus en retard en tête.
+- [x] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors celui à relancer dans 5 jours apparaît dans « À venir » et pas dans « Relances du jour ».
+- [x] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors le bandeau affiche « 2 relances à faire, dont 1 en retard ».
+- [x] Étant donné aucun contact à relancer aujourd'hui ni en retard, quand j'ouvre l'application, alors « Relances du jour » affiche « Rien à relancer aujourd'hui ».
+- [x] Étant donné un contact à relancer demain, quand j'ouvre l'application le lendemain, alors il est passé dans « Relances du jour ».
 
 ## Lot 4 · Faire avancer un contact d'étape
 

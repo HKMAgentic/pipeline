@@ -5,6 +5,7 @@
 // et le passe au service. Il ne contient aucune règle métier.
 import { refresh } from "next/cache";
 import { createContactRepository, type ContactRepository } from "@/data/contact-repository";
+import { buildAgenda } from "@/services/agenda";
 import { addContact, listContacts, setFollowUp } from "@/services/contacts";
 import { todayIn } from "@/services/follow-up";
 import type { ContactFormState } from "@/presentation/contacts/contact-form";
@@ -19,8 +20,8 @@ function getRepository() {
   return repository;
 }
 
-export async function loadContacts() {
-  return listContacts(getRepository(), todayIn(new Date(), TIME_ZONE));
+export async function loadAgenda() {
+  return buildAgenda(await listContacts(getRepository(), todayIn(new Date(), TIME_ZONE)));
 }
 
 export async function addContactAction(_state: ContactFormState, formData: FormData): Promise<ContactFormState> {
