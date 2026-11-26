@@ -8,7 +8,7 @@ describe("liste des contacts", () => {
   it("affiche la carte de Camille Roux avec l'étape « À contacter »", () => {
     const html = renderToStaticMarkup(
       <ContactList
-        contacts={[{ id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "À contacter", followUp: null }]}
+        contacts={[{ id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "À contacter", followUp: null, lastFollowUpDate: null }]}
         emptyMessage="Rien ici"
         actions={fakeActions}
       />,

@@ -50,10 +50,10 @@ Je clique sur « Étape suivante » sur une carte : le contact passe à l'étape
 
 Après avoir relancé quelqu'un, je clique sur « Relancer » sur sa carte, je choisis éventuellement la prochaine date de relance, puis je valide. La carte affiche « Relancé le … » et le contact quitte les relances du jour.
 
-- [ ] Étant donné Hugo Bernard en retard, quand je clique sur « Relancer », choisis le 01/12 et valide, alors sa carte affiche « Relancé le 24 nov. » et un tampon bleu « 01·12 », et Hugo n'est plus dans « Relances du jour ».
-- [ ] Étant donné aucune prochaine date choisie, quand je valide, alors la relance est notée et la carte indique « Pas de relance prévue ».
-- [ ] Étant donné une prochaine date dans le passé, quand je valide, alors rien n'est enregistré et le message « Choisissez aujourd'hui ou une date à venir. » s'affiche.
-- [ ] Étant donné une relance notée, quand je redémarre l'application, alors « Relancé le … » et la nouvelle date sont conservés.
+- [x] Étant donné Hugo Bernard en retard, quand je clique sur « Relancer », choisis le 01/12 et valide, alors sa carte affiche « Relancé le 24 nov. » et un tampon bleu « 01·12 », et Hugo n'est plus dans « Relances du jour ».
+- [x] Étant donné aucune prochaine date choisie, quand je valide, alors la relance est notée et la carte indique « Pas de relance prévue ».
+- [x] Étant donné une prochaine date dans le passé, quand je valide, alors rien n'est enregistré et le message « Choisissez aujourd'hui ou une date à venir. » s'affiche.
+- [x] Étant donné une relance notée, quand je redémarre l'application, alors « Relancé le … » et la nouvelle date sont conservés.
 
 ## Lot 6 · Corriger ou supprimer un contact
 

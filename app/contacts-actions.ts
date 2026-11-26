@@ -6,10 +6,11 @@
 import { refresh } from "next/cache";
 import { createContactRepository, type ContactRepository } from "@/data/contact-repository";
 import { buildAgenda } from "@/services/agenda";
-import { addContact, advanceStage, changeStage, listContacts, setFollowUp } from "@/services/contacts";
+import { addContact, advanceStage, changeStage, listContacts, recordFollowUp, setFollowUp } from "@/services/contacts";
 import { todayIn } from "@/services/follow-up";
 import type { ContactFormState } from "@/presentation/contacts/contact-form";
 import type { FollowUpFormState } from "@/presentation/contacts/follow-up-form";
+import type { RecordFollowUpState } from "@/presentation/contacts/record-follow-up";
 import type { StageFormState } from "@/presentation/contacts/stage-controls";
 
 // « Aujourd'hui » se compte à l'heure de Paris, même sur un serveur réglé en UTC.
@@ -32,8 +33,12 @@ function settle<E>(result: { ok: true } | { ok: false; error: E }): { error: E |
   return { error: null };
 }
 
+function today() {
+  return todayIn(new Date(), TIME_ZONE);
+}
+
 export async function loadAgenda() {
-  return buildAgenda(await listContacts(getRepository(), todayIn(new Date(), TIME_ZONE)));
+  return buildAgenda(await listContacts(getRepository(), today()));
 }
 
 export async function addContactAction(_state: ContactFormState, formData: FormData): Promise<ContactFormState> {
@@ -63,4 +68,14 @@ export async function advanceStageAction(_state: StageFormState, formData: FormD
 
 export async function changeStageAction(_state: StageFormState, formData: FormData): Promise<StageFormState> {
   return settle(await changeStage(getRepository(), field(formData, "id"), field(formData, "etape")));
+}
+
+export async function recordFollowUpAction(
+  _state: RecordFollowUpState,
+  formData: FormData,
+): Promise<RecordFollowUpState> {
+  const nextDate = field(formData, "prochaine");
+  const result = await recordFollowUp(getRepository(), field(formData, "id"), nextDate, today());
+  // En cas de refus, on renvoie la date saisie pour que le panneau la réaffiche.
+  return result.ok ? settle(result) : { error: result.error, nextDate };
 }

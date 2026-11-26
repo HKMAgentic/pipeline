@@ -7,4 +7,5 @@ export const fakeActions: CardActions = {
   setFollowUp: noop,
   advanceStage: noop,
   changeStage: noop,
+  recordFollowUp: noop,
 };

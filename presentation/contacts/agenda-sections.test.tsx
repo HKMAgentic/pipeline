@@ -13,6 +13,7 @@ function contact(name: string, date: string, daysFromToday: number): Contact {
     company: "",
     stage: "À contacter",
     followUp: { date, late: daysFromToday < 0, daysFromToday },
+    lastFollowUpDate: null,
   };
 }
 

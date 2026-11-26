@@ -10,13 +10,14 @@ export type ContactRecord = {
   company: string;
   stage: string;
   followUpDate: string | null; // jour AAAA-MM-JJ, ou null sans relance
+  lastFollowUpDate: string | null; // jour AAAA-MM-JJ de la dernière relance faite
   createdAt: string; // date ISO
 };
 
 export type NewContactRecord = Pick<ContactRecord, "name" | "company" | "stage" | "followUpDate">;
 
 // Les champs qu'une modification peut changer.
-export type ContactChanges = Partial<NewContactRecord>;
+export type ContactChanges = Partial<NewContactRecord & Pick<ContactRecord, "lastFollowUpDate">>;
 
 export interface ContactRepository {
   add(contact: NewContactRecord): Promise<ContactRecord>;
@@ -31,9 +32,17 @@ const COLUMNS: Record<keyof ContactChanges, string> = {
   company: "company",
   stage: "stage",
   followUpDate: "follow_up_date",
+  lastFollowUpDate: "last_follow_up_date",
 };
 
-const SELECT = "SELECT id, name, company, stage, follow_up_date, created_at FROM contacts";
+// Colonnes ajoutées après le lot 1 (lot 2 : date de relance ; lot 5 : dernière relance faite).
+const ADDED_COLUMNS = ["follow_up_date", "last_follow_up_date"];
+
+const SELECT = "SELECT id, name, company, stage, follow_up_date, last_follow_up_date, created_at FROM contacts";
+
+function optional(value: Row[string]) {
+  return value === null || value === undefined ? null : String(value);
+}
 
 function toRecord(row: Row): ContactRecord {
   return {
@@ -41,7 +50,8 @@ function toRecord(row: Row): ContactRecord {
     name: String(row.name),
     company: String(row.company),
     stage: String(row.stage),
-    followUpDate: row.follow_up_date === null ? null : String(row.follow_up_date),
+    followUpDate: optional(row.follow_up_date),
+    lastFollowUpDate: optional(row.last_follow_up_date),
     createdAt: String(row.created_at),
   };
 }
@@ -64,13 +74,16 @@ export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAUL
           company TEXT NOT NULL,
           stage TEXT NOT NULL,
           created_at TEXT NOT NULL,
-          follow_up_date TEXT
+          follow_up_date TEXT,
+          last_follow_up_date TEXT
         )
       `);
-      // Une base créée au lot 1 n'a pas la colonne de date : on l'ajoute.
-      const columns = await client.execute("PRAGMA table_info(contacts)");
-      if (!columns.rows.some((column) => column.name === "follow_up_date")) {
-        await client.execute("ALTER TABLE contacts ADD COLUMN follow_up_date TEXT");
+      // Une base créée par un lot précédent n'a pas toutes les colonnes : on ajoute celles qui manquent.
+      const existing = (await client.execute("PRAGMA table_info(contacts)")).rows.map((column) => column.name);
+      for (const column of ADDED_COLUMNS) {
+        if (!existing.includes(column)) {
+          await client.execute(`ALTER TABLE contacts ADD COLUMN ${column} TEXT`);
+        }
       }
     })();
     return ready;
@@ -79,7 +92,12 @@ export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAUL
   return {
     async add(contact) {
       await ensureTable();
-      const record: ContactRecord = { ...contact, id: randomUUID(), createdAt: new Date().toISOString() };
+      const record: ContactRecord = {
+        ...contact,
+        lastFollowUpDate: null,
+        id: randomUUID(),
+        createdAt: new Date().toISOString(),
+      };
       await client.execute({
         sql: "INSERT INTO contacts (id, name, company, stage, follow_up_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
         args: [record.id, record.name, record.company, record.stage, record.followUpDate, record.createdAt],

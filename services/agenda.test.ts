@@ -7,7 +7,7 @@ import { followUpStatus } from "@/services/follow-up";
 const TODAY = "2026-11-24";
 
 function contact(name: string, date: string | null): Contact {
-  return { id: name, name, company: "", stage: "À contacter", followUp: date ? followUpStatus(date, TODAY) : null };
+  return { id: name, name, company: "", stage: "À contacter", followUp: date ? followUpStatus(date, TODAY) : null, lastFollowUpDate: null };
 }
 
 const enRetard = contact("En retard", "2026-11-20"); // −4 jours
@@ -67,6 +67,7 @@ describe("le lendemain", () => {
       company: "",
       stage: "À contacter",
       followUpDate: "2026-11-26",
+      lastFollowUpDate: null,
       createdAt: "2026-11-25T10:00:00.000Z",
     };
     const repository = { list: async () => [record] } as unknown as ContactRepository;
@@ -77,5 +78,14 @@ describe("le lendemain", () => {
     expect(names(laVeille.due)).toEqual([]);
     expect(names(laVeille.upcoming)).toEqual(["Demain"]);
     expect(names(leLendemain.due)).toEqual(["Demain"]);
+  });
+});
+
+describe("après une relance faite", () => {
+  it("Hugo, relancé avec une prochaine date le 01/12, quitte les relances du jour", () => {
+    const hugo: Contact = { ...contact("Hugo Bernard", "2026-12-01"), lastFollowUpDate: TODAY };
+    const agenda = buildAgenda([hugo, aujourdhui]);
+    expect(names(agenda.due)).toEqual(["Aujourd'hui"]);
+    expect(names(agenda.upcoming)).toEqual(["Hugo Bernard"]);
   });
 });

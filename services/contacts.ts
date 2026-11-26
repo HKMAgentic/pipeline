@@ -9,6 +9,7 @@ export type Contact = {
   company: string;
   stage: Stage;
   followUp: FollowUp | null;
+  lastFollowUpDate: string | null; // jour AAAA-MM-JJ de la dernière relance faite
 };
 
 export type AddContactInput = { name: string; company: string; followUpDate?: string };
@@ -101,5 +102,31 @@ function toContact(record: ContactRecord, today: string): Contact {
     company: record.company,
     stage: record.stage,
     followUp: record.followUpDate ? followUpStatus(record.followUpDate, today) : null,
+    lastFollowUpDate: record.lastFollowUpDate,
   };
+}
+
+export type RecordFollowUpError = FollowUpError | "past_date" | "not_found";
+export type RecordFollowUpResult = { ok: true } | { ok: false; error: RecordFollowUpError };
+
+// Noter qu'une relance a été faite aujourd'hui, et programmer (ou non) la suivante.
+export async function recordFollowUp(
+  repository: ContactRepository,
+  id: string,
+  nextDate: string,
+  today: string,
+): Promise<RecordFollowUpResult> {
+  const next = readFollowUpDate(nextDate);
+  if (!next.ok) {
+    return next;
+  }
+  // La prochaine relance ne peut pas être dans le passé (aujourd'hui est accepté).
+  if (next.date && followUpStatus(next.date, today).late) {
+    return { ok: false, error: "past_date" };
+  }
+  if (!(await repository.get(id))) {
+    return { ok: false, error: "not_found" };
+  }
+  await repository.update(id, { lastFollowUpDate: today, followUpDate: next.date });
+  return { ok: true };
 }

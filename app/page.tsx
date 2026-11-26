@@ -11,6 +11,7 @@ import {
   advanceStageAction,
   changeStageAction,
   loadAgenda,
+  recordFollowUpAction,
   setFollowUpAction,
 } from "./contacts-actions";
 
@@ -18,6 +19,7 @@ const cardActions = {
   setFollowUp: setFollowUpAction,
   advanceStage: advanceStageAction,
   changeStage: changeStageAction,
+  recordFollowUp: recordFollowUpAction,
 };
 
 // Lu à chaque requête (la date du jour décide qui relancer), une seule fois

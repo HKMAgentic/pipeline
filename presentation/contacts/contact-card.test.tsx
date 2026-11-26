@@ -5,7 +5,7 @@ import type { Contact } from "@/services/contacts";
 
 import { fakeActions } from "@/presentation/contacts/fake-actions";
 
-const hugo: Contact = { id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté", followUp: null };
+const hugo: Contact = { id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté", followUp: null, lastFollowUpDate: null };
 
 function render(contact: Contact) {
   return renderToStaticMarkup(<ContactCard contact={contact} actions={fakeActions} />);
@@ -19,9 +19,16 @@ describe("carte de contact", () => {
     expect(html).toContain("Contacté");
   });
 
-  it("ne montre pas encore le bouton « Relancer » (lot 5)", () => {
-    const html = render(hugo);
-    expect(html).not.toContain(">Relancer<");
+  it("propose « Relancer »", () => {
+    expect(render(hugo)).toContain(">Relancer<");
+  });
+
+  it("affiche « Relancé le 24 nov. » après une relance", () => {
+    expect(render({ ...hugo, lastFollowUpDate: "2026-11-24" })).toContain("Relancé le 24 nov.");
+  });
+
+  it("n'affiche pas « Relancé le » sans relance faite", () => {
+    expect(render(hugo)).not.toContain("Relancé le");
   });
 
   it("à « Contacté », propose « Étape suivante » et la liste des étapes", () => {

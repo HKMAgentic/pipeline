@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ContactChanges, ContactRecord, ContactRepository, NewContactRecord } from "@/data/contact-repository";
-import { addContact, advanceStage, changeStage, listContacts, setFollowUp } from "@/services/contacts";
+import { addContact, advanceStage, changeStage, listContacts, recordFollowUp, setFollowUp } from "@/services/contacts";
 
 // Faux dépôt en mémoire : le service est testé sans vraie base.
 function fakeRepository(initial: ContactRecord[] = []) {
@@ -10,7 +10,7 @@ function fakeRepository(initial: ContactRecord[] = []) {
   const repository: ContactRepository = {
     async add(contact) {
       added.push(contact);
-      const record = { ...contact, id: `id-${records.length + 1}`, createdAt: "2026-11-25T10:00:00.000Z" };
+      const record = { ...contact, lastFollowUpDate: null, id: `id-${records.length + 1}`, createdAt: "2026-11-25T10:00:00.000Z" };
       records.unshift(record);
       return record;
     },
@@ -36,6 +36,7 @@ function record(overrides: Partial<ContactRecord>): ContactRecord {
     company: "Atelier Roux",
     stage: "À contacter",
     followUpDate: null,
+    lastFollowUpDate: null,
     createdAt: "2026-11-25T10:00:00.000Z",
     ...overrides,
   };
@@ -127,7 +128,7 @@ describe("lister les contacts", () => {
     const { repository } = fakeRepository([record({ stage: "Échange" })]);
 
     expect(await listContacts(repository, "2026-11-24")).toEqual([
-      { id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "Échange", followUp: null },
+      { id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "Échange", followUp: null, lastFollowUpDate: null },
     ]);
   });
 
@@ -197,6 +198,54 @@ describe("choisir une étape", () => {
     const { repository, updates } = fakeRepository();
 
     expect(await changeStage(repository, "absent", "Échange")).toEqual({ ok: false, error: "not_found" });
+    expect(updates).toEqual([]);
+  });
+});
+
+describe("noter une relance faite", () => {
+  const TODAY = "2026-11-24";
+
+  it("Hugo en retard, relancé le 24/11 avec une prochaine relance le 01/12", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "h", name: "Hugo Bernard", followUpDate: "2026-11-20" })]);
+
+    const result = await recordFollowUp(repository, "h", "2026-12-01", TODAY);
+
+    expect(result).toEqual({ ok: true });
+    expect(updates).toEqual([{ id: "h", changes: { lastFollowUpDate: "2026-11-24", followUpDate: "2026-12-01" } }]);
+    const [hugo] = await listContacts(repository, TODAY);
+    expect(hugo).toMatchObject({ lastFollowUpDate: "2026-11-24", followUp: { date: "2026-12-01", late: false } });
+  });
+
+  it("sans prochaine date : la relance est notée, plus de relance prévue", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "h", followUpDate: "2026-11-20" })]);
+
+    expect(await recordFollowUp(repository, "h", "", TODAY)).toEqual({ ok: true });
+    expect(updates).toEqual([{ id: "h", changes: { lastFollowUpDate: "2026-11-24", followUpDate: null } }]);
+  });
+
+  it("accepte aujourd'hui comme prochaine date", async () => {
+    const { repository } = fakeRepository([record({ id: "h" })]);
+    expect(await recordFollowUp(repository, "h", TODAY, TODAY)).toEqual({ ok: true });
+  });
+
+  it("refuse une prochaine date passée sans rien enregistrer", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "h", followUpDate: "2026-11-20" })]);
+
+    expect(await recordFollowUp(repository, "h", "2026-11-23", TODAY)).toEqual({ ok: false, error: "past_date" });
+    expect(updates).toEqual([]);
+  });
+
+  it("refuse une date qui n'existe pas sans rien enregistrer", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "h" })]);
+
+    expect(await recordFollowUp(repository, "h", "2026-02-30", TODAY)).toEqual({ ok: false, error: "invalid_date" });
+    expect(updates).toEqual([]);
+  });
+
+  it("refuse un contact inconnu", async () => {
+    const { repository, updates } = fakeRepository();
+
+    expect(await recordFollowUp(repository, "absent", "", TODAY)).toEqual({ ok: false, error: "not_found" });
     expect(updates).toEqual([]);
   });
 });

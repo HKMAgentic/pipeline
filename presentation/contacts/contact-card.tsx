@@ -2,7 +2,8 @@ import type { Contact } from "@/services/contacts";
 import type { CardActions } from "./card-actions";
 import { DateStamp } from "./date-stamp";
 import { FollowUpForm } from "./follow-up-form";
-import { toFollowUpView } from "./follow-up-view";
+import { followUpDoneLabel, toFollowUpView } from "./follow-up-view";
+import { RecordFollowUp } from "./record-follow-up";
 import { StageBadge } from "./stage-badge";
 import { StageControls } from "./stage-controls";
 
@@ -19,7 +20,12 @@ export function ContactCard({ contact, actions }: { contact: Contact; actions: C
         <div className="mt-3">
           <StageBadge stage={contact.stage} />
         </div>
-        {!followUp && <p className="text-muted-foreground mt-3 text-sm">Pas de relance prévue</p>}
+        {(contact.lastFollowUpDate || !followUp) && (
+          <div className="text-muted-foreground mt-3 space-y-1 text-sm">
+            {contact.lastFollowUpDate && <p>{followUpDoneLabel(contact.lastFollowUpDate)}</p>}
+            {!followUp && <p>Pas de relance prévue</p>}
+          </div>
+        )}
         {/* La clé recrée le formulaire quand la date enregistrée change. */}
         <FollowUpForm
           key={followUp?.date ?? "aucune"}
@@ -28,7 +34,8 @@ export function ContactCard({ contact, actions }: { contact: Contact; actions: C
           action={actions.setFollowUp}
         />
       </div>
-      <footer className="bg-muted/50 border-border border-t px-4 py-3 sm:px-5">
+      <footer className="bg-muted/50 border-border flex flex-wrap items-center gap-2 border-t px-4 py-3 sm:px-5">
+        <RecordFollowUp contactId={contact.id} action={actions.recordFollowUp} />
         <StageControls key={contact.stage} contactId={contact.id} stage={contact.stage} actions={actions} />
       </footer>
       {followUp && <DateStamp followUp={toFollowUpView(followUp)} className="absolute top-3 right-3 sm:top-4 sm:right-4" />}

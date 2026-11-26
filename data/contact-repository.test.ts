@@ -24,7 +24,7 @@ describe("dépôt de contacts (libSQL)", () => {
     const saved = await repository.add(camille);
 
     expect(saved.id).toBeTruthy();
-    expect(await repository.list()).toEqual([{ ...camille, id: saved.id, createdAt: saved.createdAt }]);
+    expect(await repository.list()).toEqual([{ ...camille, lastFollowUpDate: null, id: saved.id, createdAt: saved.createdAt }]);
   });
 
   it("retrouve les contacts après un redémarrage (nouveau dépôt sur le même fichier)", async () => {
@@ -106,6 +106,7 @@ describe("date de relance (libSQL)", () => {
         company: "Studio Lumen",
         stage: "Contacté",
         followUpDate: null,
+        lastFollowUpDate: null,
         createdAt: "2026-11-25T10:00:00.000Z",
       },
     ]);
@@ -119,7 +120,7 @@ describe("lire et modifier un contact (libSQL)", () => {
     const repository = createContactRepository(tempDatabaseUrl());
     const saved = await repository.add(camille);
 
-    expect(await repository.get(saved.id)).toEqual({ ...camille, id: saved.id, createdAt: saved.createdAt });
+    expect(await repository.get(saved.id)).toEqual({ ...camille, lastFollowUpDate: null, id: saved.id, createdAt: saved.createdAt });
   });
 
   it("renvoie null pour un identifiant inconnu", async () => {
@@ -153,5 +154,35 @@ describe("lire et modifier un contact (libSQL)", () => {
     await repository.update(saved.id, {});
 
     expect(await repository.get(saved.id)).toMatchObject(camille);
+  });
+});
+
+describe("relance faite (libSQL)", () => {
+  it("garde « relancé le » et la nouvelle date après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add({ ...camille, followUpDate: "2026-11-20" });
+
+    await createContactRepository(url).update(saved.id, { lastFollowUpDate: "2026-11-24", followUpDate: "2026-12-01" });
+
+    const afterRestart = createContactRepository(url);
+    expect(await afterRestart.get(saved.id)).toMatchObject({ lastFollowUpDate: "2026-11-24", followUpDate: "2026-12-01" });
+  });
+
+  it("ouvre une base du lot 2 (sans colonne « relancé le ») sans perdre ses contacts", async () => {
+    const url = tempDatabaseUrl();
+    const old = createClient({ url });
+    await old.execute(
+      "CREATE TABLE contacts (id TEXT PRIMARY KEY, name TEXT NOT NULL, company TEXT NOT NULL, stage TEXT NOT NULL, created_at TEXT NOT NULL, follow_up_date TEXT)",
+    );
+    await old.execute(
+      "INSERT INTO contacts VALUES ('ancien', 'Hugo Bernard', 'Studio Lumen', 'Contacté', '2026-11-25T10:00:00.000Z', '2026-11-20')",
+    );
+    old.close();
+
+    const repository = createContactRepository(url);
+
+    expect(await repository.get("ancien")).toMatchObject({ followUpDate: "2026-11-20", lastFollowUpDate: null });
+    await repository.update("ancien", { lastFollowUpDate: "2026-11-24" });
+    expect((await repository.get("ancien"))?.lastFollowUpDate).toBe("2026-11-24");
   });
 });
