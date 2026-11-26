@@ -186,3 +186,27 @@ describe("relance faite (libSQL)", () => {
     expect((await repository.get("ancien"))?.lastFollowUpDate).toBe("2026-11-24");
   });
 });
+
+describe("corriger et supprimer (libSQL)", () => {
+  it("garde le nom d'entreprise corrigé après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add(camille);
+
+    await createContactRepository(url).update(saved.id, { name: "Camille Roux", company: "Atelier Roux & fils" });
+
+    expect((await createContactRepository(url).get(saved.id))?.company).toBe("Atelier Roux & fils");
+  });
+
+  it("un contact supprimé ne revient pas après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const repository = createContactRepository(url);
+    const camilleSaved = await repository.add(camille);
+    await repository.add({ ...camille, name: "Hugo Bernard" });
+
+    await repository.remove(camilleSaved.id);
+
+    const afterRestart = createContactRepository(url);
+    expect((await afterRestart.list()).map((c) => c.name)).toEqual(["Hugo Bernard"]);
+    expect(await afterRestart.get(camilleSaved.id)).toBeNull();
+  });
+});

@@ -59,10 +59,10 @@ Après avoir relancé quelqu'un, je clique sur « Relancer » sur sa carte, je c
 
 Je peux modifier le nom ou l'entreprise d'un contact. Je peux aussi le supprimer, après une confirmation, pour ne pas le perdre par erreur.
 
-- [ ] Étant donné « Atelier Roux », quand je le corrige en « Atelier Roux & fils » et j'enregistre, alors la carte affiche le nouveau nom, conservé après un redémarrage.
-- [ ] Étant donné un nom vidé lors de la modification, quand j'enregistre, alors rien n'est modifié et le message « Le nom est obligatoire. » s'affiche.
-- [ ] Étant donné le contact « Camille Roux », quand je clique sur « Supprimer » puis confirme, alors il disparaît de la liste et ne revient pas après un redémarrage.
-- [ ] Étant donné la demande de confirmation, quand j'annule, alors le contact reste dans la liste, inchangé.
+- [x] Étant donné « Atelier Roux », quand je le corrige en « Atelier Roux & fils » et j'enregistre, alors la carte affiche le nouveau nom, conservé après un redémarrage.
+- [x] Étant donné un nom vidé lors de la modification, quand j'enregistre, alors rien n'est modifié et le message « Le nom est obligatoire. » s'affiche.
+- [x] Étant donné le contact « Camille Roux », quand je clique sur « Supprimer » puis confirme, alors il disparaît de la liste et ne revient pas après un redémarrage.
+- [x] Étant donné la demande de confirmation, quand j'annule, alors le contact reste dans la liste, inchangé.
 
 ---
 

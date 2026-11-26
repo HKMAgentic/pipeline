@@ -29,10 +29,19 @@ function readFollowUpDate(text = ""): { ok: true; date: string | null } | { ok: 
   return parsed.ok ? { ok: true, date: parsed.day } : parsed;
 }
 
-export async function addContact(repository: ContactRepository, input: AddContactInput): Promise<AddContactResult> {
+// Nom et entreprise, à la création comme à la correction : espaces retirés, nom obligatoire.
+function readIdentity(input: ContactIdentity): { ok: true; identity: ContactIdentity } | { ok: false; error: "name_required" } {
   const name = input.name.trim();
   if (name === "") {
     return { ok: false, error: "name_required" };
+  }
+  return { ok: true, identity: { name, company: input.company.trim() } };
+}
+
+export async function addContact(repository: ContactRepository, input: AddContactInput): Promise<AddContactResult> {
+  const identity = readIdentity(input);
+  if (!identity.ok) {
+    return identity;
   }
   const followUp = readFollowUpDate(input.followUpDate);
   if (!followUp.ok) {
@@ -40,12 +49,43 @@ export async function addContact(repository: ContactRepository, input: AddContac
   }
 
   const record = await repository.add({
-    name,
-    company: input.company.trim(),
+    ...identity.identity,
     stage: INITIAL_STAGE,
     followUpDate: followUp.date,
   });
   return { ok: true, id: record.id };
+}
+
+export type ContactIdentity = { name: string; company: string };
+export type UpdateContactError = "name_required" | "not_found";
+export type UpdateContactResult = { ok: true } | { ok: false; error: UpdateContactError };
+
+// Corriger le nom ou l'entreprise d'un contact.
+export async function updateContact(
+  repository: ContactRepository,
+  id: string,
+  input: ContactIdentity,
+): Promise<UpdateContactResult> {
+  const identity = readIdentity(input);
+  if (!identity.ok) {
+    return identity;
+  }
+  if (!(await repository.get(id))) {
+    return { ok: false, error: "not_found" };
+  }
+  await repository.update(id, identity.identity);
+  return { ok: true };
+}
+
+export type DeleteContactResult = { ok: true } | { ok: false; error: "not_found" };
+
+// Supprimer définitivement un contact.
+export async function deleteContact(repository: ContactRepository, id: string): Promise<DeleteContactResult> {
+  if (!(await repository.get(id))) {
+    return { ok: false, error: "not_found" };
+  }
+  await repository.remove(id);
+  return { ok: true };
 }
 
 export async function setFollowUp(repository: ContactRepository, id: string, date: string): Promise<SetFollowUpResult> {

@@ -19,6 +19,12 @@ describe("carte de contact", () => {
     expect(html).toContain("Contacté");
   });
 
+  it("propose « Modifier » et « Supprimer »", () => {
+    const html = render(hugo);
+    expect(html).toContain(">Modifier<");
+    expect(html).toContain(">Supprimer<");
+  });
+
   it("propose « Relancer »", () => {
     expect(render(hugo)).toContain(">Relancer<");
   });

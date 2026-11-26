@@ -8,4 +8,6 @@ export const fakeActions: CardActions = {
   advanceStage: noop,
   changeStage: noop,
   recordFollowUp: noop,
+  updateContact: noop,
+  deleteContact: noop,
 };

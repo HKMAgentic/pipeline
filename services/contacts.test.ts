@@ -1,12 +1,22 @@
 import { describe, expect, it } from "vitest";
 import type { ContactChanges, ContactRecord, ContactRepository, NewContactRecord } from "@/data/contact-repository";
-import { addContact, advanceStage, changeStage, listContacts, recordFollowUp, setFollowUp } from "@/services/contacts";
+import {
+  addContact,
+  advanceStage,
+  changeStage,
+  deleteContact,
+  listContacts,
+  recordFollowUp,
+  setFollowUp,
+  updateContact,
+} from "@/services/contacts";
 
 // Faux dépôt en mémoire : le service est testé sans vraie base.
 function fakeRepository(initial: ContactRecord[] = []) {
   const records = [...initial];
   const added: NewContactRecord[] = [];
   const updates: { id: string; changes: ContactChanges }[] = [];
+  const removed: string[] = [];
   const repository: ContactRepository = {
     async add(contact) {
       added.push(contact);
@@ -25,8 +35,13 @@ function fakeRepository(initial: ContactRecord[] = []) {
       const record = records.find((r) => r.id === id);
       if (record) Object.assign(record, changes);
     },
+    async remove(id) {
+      removed.push(id);
+      const index = records.findIndex((r) => r.id === id);
+      if (index >= 0) records.splice(index, 1);
+    },
   };
-  return { repository, added, updates };
+  return { repository, added, updates, removed };
 }
 
 function record(overrides: Partial<ContactRecord>): ContactRecord {
@@ -247,5 +262,58 @@ describe("noter une relance faite", () => {
 
     expect(await recordFollowUp(repository, "absent", "", TODAY)).toEqual({ ok: false, error: "not_found" });
     expect(updates).toEqual([]);
+  });
+});
+
+describe("corriger un contact", () => {
+  it("« Atelier Roux » devient « Atelier Roux & fils »", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "c" })]);
+
+    const result = await updateContact(repository, "c", { name: "Camille Roux", company: "Atelier Roux & fils" });
+
+    expect(result).toEqual({ ok: true });
+    expect(updates).toEqual([{ id: "c", changes: { name: "Camille Roux", company: "Atelier Roux & fils" } }]);
+  });
+
+  it("retire les espaces autour du nom et de l'entreprise", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "c" })]);
+
+    await updateContact(repository, "c", { name: "  Camille  ", company: " Atelier " });
+
+    expect(updates[0].changes).toEqual({ name: "Camille", company: "Atelier" });
+  });
+
+  it.each(["", "   "])("refuse un nom vidé (%j) sans rien modifier", async (name) => {
+    const { repository, updates } = fakeRepository([record({ id: "c" })]);
+
+    expect(await updateContact(repository, "c", { name, company: "Atelier Roux" })).toEqual({
+      ok: false,
+      error: "name_required",
+    });
+    expect(updates).toEqual([]);
+  });
+
+  it("refuse un contact inconnu", async () => {
+    const { repository, updates } = fakeRepository();
+
+    expect(await updateContact(repository, "absent", { name: "X", company: "" })).toEqual({ ok: false, error: "not_found" });
+    expect(updates).toEqual([]);
+  });
+});
+
+describe("supprimer un contact", () => {
+  it("supprime Camille Roux", async () => {
+    const { repository, removed } = fakeRepository([record({ id: "c" })]);
+
+    expect(await deleteContact(repository, "c")).toEqual({ ok: true });
+    expect(removed).toEqual(["c"]);
+    expect(await listContacts(repository, "2026-11-24")).toEqual([]);
+  });
+
+  it("refuse un contact inconnu", async () => {
+    const { repository, removed } = fakeRepository();
+
+    expect(await deleteContact(repository, "absent")).toEqual({ ok: false, error: "not_found" });
+    expect(removed).toEqual([]);
   });
 });

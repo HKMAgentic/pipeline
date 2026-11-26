@@ -24,6 +24,7 @@ export interface ContactRepository {
   list(): Promise<ContactRecord[]>;
   get(id: string): Promise<ContactRecord | null>;
   update(id: string, changes: ContactChanges): Promise<void>;
+  remove(id: string): Promise<void>;
 }
 
 // Nom de la colonne pour chaque champ modifiable : seule cette liste peut entrer dans une requête.
@@ -126,6 +127,11 @@ export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAUL
         sql: `UPDATE contacts SET ${fields.map((field) => `${COLUMNS[field]} = ?`).join(", ")} WHERE id = ?`,
         args: [...fields.map((field) => changes[field] ?? null), id],
       });
+    },
+
+    async remove(id) {
+      await ensureTable();
+      await client.execute({ sql: "DELETE FROM contacts WHERE id = ?", args: [id] });
     },
   };
 }

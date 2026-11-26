@@ -6,9 +6,20 @@
 import { refresh } from "next/cache";
 import { createContactRepository, type ContactRepository } from "@/data/contact-repository";
 import { buildAgenda } from "@/services/agenda";
-import { addContact, advanceStage, changeStage, listContacts, recordFollowUp, setFollowUp } from "@/services/contacts";
+import {
+  addContact,
+  advanceStage,
+  changeStage,
+  deleteContact,
+  listContacts,
+  recordFollowUp,
+  setFollowUp,
+  updateContact,
+} from "@/services/contacts";
 import { todayIn } from "@/services/follow-up";
 import type { ContactFormState } from "@/presentation/contacts/contact-form";
+import type { DeleteContactState } from "@/presentation/contacts/delete-contact";
+import type { EditContactState } from "@/presentation/contacts/edit-contact";
 import type { FollowUpFormState } from "@/presentation/contacts/follow-up-form";
 import type { RecordFollowUpState } from "@/presentation/contacts/record-follow-up";
 import type { StageFormState } from "@/presentation/contacts/stage-controls";
@@ -78,4 +89,15 @@ export async function recordFollowUpAction(
   const result = await recordFollowUp(getRepository(), field(formData, "id"), nextDate, today());
   // En cas de refus, on renvoie la date saisie pour que le panneau la réaffiche.
   return result.ok ? settle(result) : { error: result.error, nextDate };
+}
+
+export async function updateContactAction(_state: EditContactState, formData: FormData): Promise<EditContactState> {
+  const values = { name: field(formData, "nom"), company: field(formData, "entreprise") };
+  const result = await updateContact(getRepository(), field(formData, "id"), values);
+  // En cas de refus, on renvoie la saisie pour que le panneau la réaffiche.
+  return result.ok ? settle(result) : { error: result.error, values };
+}
+
+export async function deleteContactAction(_state: DeleteContactState, formData: FormData): Promise<DeleteContactState> {
+  return settle(await deleteContact(getRepository(), field(formData, "id")));
 }
