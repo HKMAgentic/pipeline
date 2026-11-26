@@ -1,11 +1,11 @@
 import type { Agenda } from "@/services/agenda";
 import { ContactList } from "./contact-list";
-import type { FollowUpAction } from "./follow-up-form";
+import type { CardActions } from "./card-actions";
 
-type AgendaSectionsProps = { agenda: Agenda; setFollowUpAction: FollowUpAction };
+type AgendaSectionsProps = { agenda: Agenda; actions: CardActions };
 
 // « Relances du jour » en premier : c'est la question prioritaire de l'écran.
-export function AgendaSections({ agenda, setFollowUpAction }: AgendaSectionsProps) {
+export function AgendaSections({ agenda, actions }: AgendaSectionsProps) {
   const upcomingEmpty =
     agenda.total === 0
       ? "Aucun contact pour l’instant. Ajoutez votre premier contact avec le formulaire."
@@ -21,7 +21,7 @@ export function AgendaSections({ agenda, setFollowUpAction }: AgendaSectionsProp
           <ContactList
             contacts={agenda.due}
             emptyMessage="Rien à relancer aujourd’hui."
-            setFollowUpAction={setFollowUpAction}
+            actions={actions}
           />
         </div>
       </section>
@@ -30,7 +30,7 @@ export function AgendaSections({ agenda, setFollowUpAction }: AgendaSectionsProp
           À venir
         </h2>
         <div className="mt-4">
-          <ContactList contacts={agenda.upcoming} emptyMessage={upcomingEmpty} setFollowUpAction={setFollowUpAction} />
+          <ContactList contacts={agenda.upcoming} emptyMessage={upcomingEmpty} actions={actions} />
         </div>
       </section>
     </div>

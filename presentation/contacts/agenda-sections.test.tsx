@@ -4,7 +4,7 @@ import { AgendaSections } from "@/presentation/contacts/agenda-sections";
 import type { Agenda } from "@/services/agenda";
 import type { Contact } from "@/services/contacts";
 
-const fakeAction = async () => ({ error: null });
+import { fakeActions } from "@/presentation/contacts/fake-actions";
 
 function contact(name: string, date: string, daysFromToday: number): Contact {
   return {
@@ -21,7 +21,7 @@ const aujourdhui = contact("Camille Roux", "2026-11-24", 0);
 const dansCinqJours = contact("Léa Martin", "2026-11-29", 5);
 
 function render(agenda: Agenda) {
-  return renderToStaticMarkup(<AgendaSections agenda={agenda} setFollowUpAction={fakeAction} />);
+  return renderToStaticMarkup(<AgendaSections agenda={agenda} actions={fakeActions} />);
 }
 
 // Découpe le HTML en deux : ce qui est dans « Relances du jour », ce qui est dans « À venir ».

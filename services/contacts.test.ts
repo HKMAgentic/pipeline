@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { ContactRecord, ContactRepository, NewContactRecord } from "@/data/contact-repository";
-import { addContact, listContacts, setFollowUp } from "@/services/contacts";
+import type { ContactChanges, ContactRecord, ContactRepository, NewContactRecord } from "@/data/contact-repository";
+import { addContact, advanceStage, changeStage, listContacts, setFollowUp } from "@/services/contacts";
 
 // Faux dépôt en mémoire : le service est testé sans vraie base.
 function fakeRepository(initial: ContactRecord[] = []) {
   const records = [...initial];
   const added: NewContactRecord[] = [];
-  const followUpChanges: { id: string; date: string | null }[] = [];
+  const updates: { id: string; changes: ContactChanges }[] = [];
   const repository: ContactRepository = {
     async add(contact) {
       added.push(contact);
@@ -17,13 +17,16 @@ function fakeRepository(initial: ContactRecord[] = []) {
     async list() {
       return records;
     },
-    async setFollowUpDate(id, date) {
-      followUpChanges.push({ id, date });
+    async get(id) {
+      return records.find((r) => r.id === id) ?? null;
+    },
+    async update(id, changes) {
+      updates.push({ id, changes });
       const record = records.find((r) => r.id === id);
-      if (record) record.followUpDate = date;
+      if (record) Object.assign(record, changes);
     },
   };
-  return { repository, added, followUpChanges };
+  return { repository, added, updates };
 }
 
 function record(overrides: Partial<ContactRecord>): ContactRecord {
@@ -93,29 +96,29 @@ describe("ajouter un contact", () => {
 
 describe("changer la date de relance", () => {
   it("enregistre la nouvelle date", async () => {
-    const { repository, followUpChanges } = fakeRepository([record({ id: "a" })]);
+    const { repository, updates } = fakeRepository([record({ id: "a" })]);
 
     const result = await setFollowUp(repository, "a", "2026-12-01");
 
     expect(result).toEqual({ ok: true });
-    expect(followUpChanges).toEqual([{ id: "a", date: "2026-12-01" }]);
+    expect(updates).toEqual([{ id: "a", changes: { followUpDate: "2026-12-01" } }]);
   });
 
   it("une date vide retire la relance", async () => {
-    const { repository, followUpChanges } = fakeRepository([record({ id: "a", followUpDate: "2026-11-20" })]);
+    const { repository, updates } = fakeRepository([record({ id: "a", followUpDate: "2026-11-20" })]);
 
     await setFollowUp(repository, "a", "");
 
-    expect(followUpChanges).toEqual([{ id: "a", date: null }]);
+    expect(updates).toEqual([{ id: "a", changes: { followUpDate: null } }]);
   });
 
   it("refuse une date qui n'existe pas sans rien enregistrer", async () => {
-    const { repository, followUpChanges } = fakeRepository([record({ id: "a" })]);
+    const { repository, updates } = fakeRepository([record({ id: "a" })]);
 
     const result = await setFollowUp(repository, "a", "2026-13-01");
 
     expect(result).toEqual({ ok: false, error: "invalid_date" });
-    expect(followUpChanges).toEqual([]);
+    expect(updates).toEqual([]);
   });
 });
 
@@ -145,5 +148,55 @@ describe("lister les contacts", () => {
     const { repository } = fakeRepository([record({ stage: "Perdu" })]);
 
     await expect(listContacts(repository, "2026-11-24")).rejects.toThrow("Étape inconnue : Perdu");
+  });
+});
+
+describe("étape suivante", () => {
+  it("un contact à « Contacté » passe à « Échange »", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "a", stage: "Contacté" })]);
+
+    const result = await advanceStage(repository, "a");
+
+    expect(result).toEqual({ ok: true, stage: "Échange" });
+    expect(updates).toEqual([{ id: "a", changes: { stage: "Échange" } }]);
+  });
+
+  it("un contact à « Signé » n'a pas d'étape suivante : rien n'est enregistré", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "a", stage: "Signé" })]);
+
+    expect(await advanceStage(repository, "a")).toEqual({ ok: false, error: "last_stage" });
+    expect(updates).toEqual([]);
+  });
+
+  it("un contact inconnu : rien n'est enregistré", async () => {
+    const { repository, updates } = fakeRepository();
+
+    expect(await advanceStage(repository, "absent")).toEqual({ ok: false, error: "not_found" });
+    expect(updates).toEqual([]);
+  });
+});
+
+describe("choisir une étape", () => {
+  it("un contact passé à « Proposition » par erreur revient à « Échange »", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "a", stage: "Proposition" })]);
+
+    const result = await changeStage(repository, "a", "Échange");
+
+    expect(result).toEqual({ ok: true, stage: "Échange" });
+    expect(updates).toEqual([{ id: "a", changes: { stage: "Échange" } }]);
+  });
+
+  it("refuse une étape qui n'existe pas", async () => {
+    const { repository, updates } = fakeRepository([record({ id: "a" })]);
+
+    expect(await changeStage(repository, "a", "Perdu")).toEqual({ ok: false, error: "invalid_stage" });
+    expect(updates).toEqual([]);
+  });
+
+  it("refuse un contact inconnu", async () => {
+    const { repository, updates } = fakeRepository();
+
+    expect(await changeStage(repository, "absent", "Échange")).toEqual({ ok: false, error: "not_found" });
+    expect(updates).toEqual([]);
   });
 });

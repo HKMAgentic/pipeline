@@ -1,18 +1,19 @@
 import type { Contact } from "@/services/contacts";
+import type { CardActions } from "./card-actions";
 import { DateStamp } from "./date-stamp";
-import { FollowUpForm, type FollowUpAction } from "./follow-up-form";
+import { FollowUpForm } from "./follow-up-form";
 import { toFollowUpView } from "./follow-up-view";
 import { StageBadge } from "./stage-badge";
+import { StageControls } from "./stage-controls";
 
-// Nom, entreprise, étape et date de relance (tampon). Les boutons
-// « Relancer » / « Étape suivante » arriveront avec les lots 5 et 4.
-export function ContactCard({ contact, setFollowUpAction }: { contact: Contact; setFollowUpAction: FollowUpAction }) {
+// Nom, entreprise, étape et date de relance (tampon), puis les actions dans le pied de carte.
+export function ContactCard({ contact, actions }: { contact: Contact; actions: CardActions }) {
   const followUp = contact.followUp;
 
   return (
-    <article className="bg-card text-card-foreground ring-border relative rounded-lg p-4 ring-1 sm:p-5">
+    <article className="bg-card text-card-foreground ring-border relative overflow-hidden rounded-lg ring-1">
       {/* Le tampon est en haut à droite ; le texte lui laisse 112px. */}
-      <div className={followUp ? "pr-28" : undefined}>
+      <div className={followUp ? "p-4 pr-28 sm:p-5 sm:pr-28" : "p-4 sm:p-5"}>
         <h3 className="text-xl leading-tight font-bold">{contact.name}</h3>
         {contact.company && <p className="text-muted-foreground mt-0.5 text-sm">{contact.company}</p>}
         <div className="mt-3">
@@ -24,9 +25,12 @@ export function ContactCard({ contact, setFollowUpAction }: { contact: Contact; 
           key={followUp?.date ?? "aucune"}
           contactId={contact.id}
           date={followUp?.date ?? null}
-          action={setFollowUpAction}
+          action={actions.setFollowUp}
         />
       </div>
+      <footer className="bg-muted/50 border-border border-t px-4 py-3 sm:px-5">
+        <StageControls key={contact.stage} contactId={contact.id} stage={contact.stage} actions={actions} />
+      </footer>
       {followUp && <DateStamp followUp={toFollowUpView(followUp)} className="absolute top-3 right-3 sm:top-4 sm:right-4" />}
     </article>
   );

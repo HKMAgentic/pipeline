@@ -6,7 +6,19 @@ import { AgendaSections } from "@/presentation/contacts/agenda-sections";
 import { agendaSummary } from "@/presentation/contacts/agenda-summary";
 import { ContactForm } from "@/presentation/contacts/contact-form";
 import { ThemeToggle } from "@/presentation/theme-toggle";
-import { addContactAction, loadAgenda, setFollowUpAction } from "./contacts-actions";
+import {
+  addContactAction,
+  advanceStageAction,
+  changeStageAction,
+  loadAgenda,
+  setFollowUpAction,
+} from "./contacts-actions";
+
+const cardActions = {
+  setFollowUp: setFollowUpAction,
+  advanceStage: advanceStageAction,
+  changeStage: changeStageAction,
+};
 
 // Lu à chaque requête (la date du jour décide qui relancer), une seule fois
 // par requête pour le bandeau et les sections.
@@ -22,7 +34,7 @@ async function Summary() {
 
 async function Sections() {
   const agenda = await getAgenda();
-  return <AgendaSections agenda={agenda} setFollowUpAction={setFollowUpAction} />;
+  return <AgendaSections agenda={agenda} actions={cardActions} />;
 }
 
 export default function Home() {

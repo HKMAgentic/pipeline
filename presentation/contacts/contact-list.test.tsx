@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ContactList } from "@/presentation/contacts/contact-list";
 
-const fakeAction = async () => ({ error: null });
+import { fakeActions } from "@/presentation/contacts/fake-actions";
 
 describe("liste des contacts", () => {
   it("affiche la carte de Camille Roux avec l'étape « À contacter »", () => {
@@ -10,7 +10,7 @@ describe("liste des contacts", () => {
       <ContactList
         contacts={[{ id: "a", name: "Camille Roux", company: "Atelier Roux", stage: "À contacter", followUp: null }]}
         emptyMessage="Rien ici"
-        setFollowUpAction={fakeAction}
+        actions={fakeActions}
       />,
     );
     expect(html).toContain("Camille Roux");
@@ -20,7 +20,7 @@ describe("liste des contacts", () => {
   });
 
   it("affiche le message reçu quand la liste est vide", () => {
-    const html = renderToStaticMarkup(<ContactList contacts={[]} emptyMessage="Rien ici" setFollowUpAction={fakeAction} />);
+    const html = renderToStaticMarkup(<ContactList contacts={[]} emptyMessage="Rien ici" actions={fakeActions} />);
     expect(html).toContain("Rien ici");
   });
 });

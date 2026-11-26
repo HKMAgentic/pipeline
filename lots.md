@@ -41,10 +41,10 @@ Je choisis une date de relance, en créant le contact ou plus tard sur sa carte.
 
 Je clique sur « Étape suivante » sur une carte : le contact passe à l'étape d'après et son étiquette change. Si je me suis trompé, je peux choisir une autre étape dans la liste des étapes.
 
-- [ ] Étant donné un contact à l'étape « Contacté », quand je clique sur « Étape suivante », alors son étiquette devient « Échange » et l'étape est conservée après un redémarrage.
-- [ ] Étant donné un contact à l'étape « Signé », quand j'affiche sa carte, alors le bouton « Étape suivante » n'est pas proposé.
-- [ ] Étant donné un contact passé à « Proposition » par erreur, quand je choisis « Échange » dans la liste des étapes, alors il revient à « Échange ».
-- [ ] Étant donné un contact à « À contacter » ou « Contacté », quand j'affiche sa carte, alors son étiquette est kraft ; aux étapes suivantes, elle est bleue.
+- [x] Étant donné un contact à l'étape « Contacté », quand je clique sur « Étape suivante », alors son étiquette devient « Échange » et l'étape est conservée après un redémarrage.
+- [x] Étant donné un contact à l'étape « Signé », quand j'affiche sa carte, alors le bouton « Étape suivante » n'est pas proposé.
+- [x] Étant donné un contact passé à « Proposition » par erreur, quand je choisis « Échange » dans la liste des étapes, alors il revient à « Échange ».
+- [x] Étant donné un contact à « À contacter » ou « Contacté », quand j'affiche sa carte, alors son étiquette est kraft ; aux étapes suivantes, elle est bleue.
 
 ## Lot 5 · Noter une relance faite
 

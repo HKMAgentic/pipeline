@@ -70,7 +70,7 @@ describe("date de relance (libSQL)", () => {
     const repository = createContactRepository(url);
     const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
 
-    await repository.setFollowUpDate(saved.id, "2026-12-01");
+    await repository.update(saved.id, { followUpDate: "2026-12-01" });
 
     const [contact] = await createContactRepository(url).list();
     expect(contact.followUpDate).toBe("2026-12-01");
@@ -80,7 +80,7 @@ describe("date de relance (libSQL)", () => {
     const repository = createContactRepository(tempDatabaseUrl());
     const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
 
-    await repository.setFollowUpDate(saved.id, null);
+    await repository.update(saved.id, { followUpDate: null });
 
     const [contact] = await repository.list();
     expect(contact.followUpDate).toBeNull();
@@ -109,7 +109,49 @@ describe("date de relance (libSQL)", () => {
         createdAt: "2026-11-25T10:00:00.000Z",
       },
     ]);
-    await repository.setFollowUpDate("ancien", "2026-12-01");
+    await repository.update("ancien", { followUpDate: "2026-12-01" });
     expect((await repository.list())[0].followUpDate).toBe("2026-12-01");
+  });
+});
+
+describe("lire et modifier un contact (libSQL)", () => {
+  it("relit un contact par son identifiant", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add(camille);
+
+    expect(await repository.get(saved.id)).toEqual({ ...camille, id: saved.id, createdAt: saved.createdAt });
+  });
+
+  it("renvoie null pour un identifiant inconnu", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    expect(await repository.get("absent")).toBeNull();
+  });
+
+  it("garde la nouvelle étape après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add({ ...camille, stage: "Contacté" });
+
+    await createContactRepository(url).update(saved.id, { stage: "Échange" });
+
+    const afterRestart = createContactRepository(url);
+    expect((await afterRestart.get(saved.id))?.stage).toBe("Échange");
+  });
+
+  it("ne modifie que les champs demandés", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
+
+    await repository.update(saved.id, { stage: "Échange" });
+
+    expect(await repository.get(saved.id)).toMatchObject({ name: "Camille Roux", followUpDate: "2026-11-26", stage: "Échange" });
+  });
+
+  it("une modification vide ne fait rien", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add(camille);
+
+    await repository.update(saved.id, {});
+
+    expect(await repository.get(saved.id)).toMatchObject(camille);
   });
 });

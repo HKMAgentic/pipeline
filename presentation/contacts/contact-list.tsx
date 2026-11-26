@@ -1,14 +1,14 @@
 import type { Contact } from "@/services/contacts";
 import { ContactCard } from "./contact-card";
-import type { FollowUpAction } from "./follow-up-form";
+import type { CardActions } from "./card-actions";
 
 type ContactListProps = {
   contacts: Contact[];
   emptyMessage: string;
-  setFollowUpAction: FollowUpAction;
+  actions: CardActions;
 };
 
-export function ContactList({ contacts, emptyMessage, setFollowUpAction }: ContactListProps) {
+export function ContactList({ contacts, emptyMessage, actions }: ContactListProps) {
   if (contacts.length === 0) {
     return <p className="bg-card text-muted-foreground ring-border rounded-lg p-5 text-sm ring-1">{emptyMessage}</p>;
   }
@@ -16,7 +16,7 @@ export function ContactList({ contacts, emptyMessage, setFollowUpAction }: Conta
   return (
     <div className="grid gap-3">
       {contacts.map((contact) => (
-        <ContactCard key={contact.id} contact={contact} setFollowUpAction={setFollowUpAction} />
+        <ContactCard key={contact.id} contact={contact} actions={actions} />
       ))}
     </div>
   );

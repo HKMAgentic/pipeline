@@ -1,7 +1,7 @@
 // Règles métier des contacts. Le service ne connaît que le contrat du dépôt.
 import type { ContactRecord, ContactRepository } from "@/data/contact-repository";
 import { followUpStatus, parseDay, type FollowUp } from "./follow-up";
-import { INITIAL_STAGE, isStage, type Stage } from "./stages";
+import { INITIAL_STAGE, isStage, nextStage, type Stage } from "./stages";
 
 export type Contact = {
   id: string;
@@ -52,8 +52,37 @@ export async function setFollowUp(repository: ContactRepository, id: string, dat
   if (!followUp.ok) {
     return followUp;
   }
-  await repository.setFollowUpDate(id, followUp.date);
+  await repository.update(id, { followUpDate: followUp.date });
   return { ok: true };
+}
+
+export type StageError = "not_found" | "last_stage" | "invalid_stage";
+export type StageResult = { ok: true; stage: Stage } | { ok: false; error: StageError };
+
+// L'étape suivante se calcule à partir de l'étape enregistrée, pas de celle affichée.
+export async function advanceStage(repository: ContactRepository, id: string): Promise<StageResult> {
+  const record = await repository.get(id);
+  if (!record || !isStage(record.stage)) {
+    return { ok: false, error: "not_found" };
+  }
+  const stage = nextStage(record.stage);
+  if (!stage) {
+    return { ok: false, error: "last_stage" };
+  }
+  await repository.update(id, { stage });
+  return { ok: true, stage };
+}
+
+// Choisir n'importe quelle étape, par exemple pour corriger une erreur.
+export async function changeStage(repository: ContactRepository, id: string, stage: string): Promise<StageResult> {
+  if (!isStage(stage)) {
+    return { ok: false, error: "invalid_stage" };
+  }
+  if (!(await repository.get(id))) {
+    return { ok: false, error: "not_found" };
+  }
+  await repository.update(id, { stage });
+  return { ok: true, stage };
 }
 
 // `today` : le jour du calendrier (AAAA-MM-JJ) qui sert à calculer les retards.
