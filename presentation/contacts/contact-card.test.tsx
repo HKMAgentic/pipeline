@@ -3,12 +3,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ContactCard } from "@/presentation/contacts/contact-card";
 import type { Contact } from "@/services/contacts";
 
-const fakeAction = async () => ({ error: null });
+import { fakeActions } from "@/presentation/contacts/fake-actions";
 
-const hugo: Contact = { id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté", followUp: null };
+const hugo: Contact = { id: "a", name: "Hugo Bernard", company: "Studio Lumen", stage: "Contacté", followUp: null, lastFollowUpDate: null };
 
 function render(contact: Contact) {
-  return renderToStaticMarkup(<ContactCard contact={contact} setFollowUpAction={fakeAction} />);
+  return renderToStaticMarkup(<ContactCard contact={contact} actions={fakeActions} />);
 }
 
 describe("carte de contact", () => {
@@ -19,9 +19,32 @@ describe("carte de contact", () => {
     expect(html).toContain("Contacté");
   });
 
-  it("ne montre pas encore les boutons des lots suivants", () => {
+  it("propose « Modifier » et « Supprimer »", () => {
     const html = render(hugo);
-    expect(html).not.toContain(">Relancer<");
+    expect(html).toContain(">Modifier<");
+    expect(html).toContain(">Supprimer<");
+  });
+
+  it("propose « Relancer »", () => {
+    expect(render(hugo)).toContain(">Relancer<");
+  });
+
+  it("affiche « Relancé le 24 nov. » après une relance", () => {
+    expect(render({ ...hugo, lastFollowUpDate: "2026-11-24" })).toContain("Relancé le 24 nov.");
+  });
+
+  it("n'affiche pas « Relancé le » sans relance faite", () => {
+    expect(render(hugo)).not.toContain("Relancé le");
+  });
+
+  it("à « Contacté », propose « Étape suivante » et la liste des étapes", () => {
+    const html = render(hugo);
+    expect(html).toContain("Étape suivante");
+    expect(html).toContain("Changer d’étape");
+  });
+
+  it("à « Signé », ne propose pas « Étape suivante »", () => {
+    const html = render({ ...hugo, stage: "Signé" });
     expect(html).not.toContain("Étape suivante");
   });
 });

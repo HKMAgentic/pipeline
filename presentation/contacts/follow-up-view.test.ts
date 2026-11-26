@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toFollowUpView } from "@/presentation/contacts/follow-up-view";
+import { followUpDoneLabel, toFollowUpView } from "@/presentation/contacts/follow-up-view";
 
 describe("texte du tampon de relance", () => {
   it("à venir : date « 26·11 » et jour de la semaine", () => {
@@ -33,5 +33,15 @@ describe("texte du tampon de relance", () => {
     const view = toFollowUpView({ date: "2026-11-23", late: true, daysFromToday: -1 });
     expect(view.caption).toBe("−1 JOUR");
     expect(view.label).toBe("Relance en retard de 1 jour, prévue le lundi 23 novembre");
+  });
+});
+
+describe("texte « Relancé le »", () => {
+  it("« Relancé le 24 nov. »", () => {
+    expect(followUpDoneLabel("2026-11-24")).toBe("Relancé le 24 nov.");
+  });
+
+  it("« Relancé le 1 déc. »", () => {
+    expect(followUpDoneLabel("2026-12-01")).toBe("Relancé le 1 déc.");
   });
 });

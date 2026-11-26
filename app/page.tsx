@@ -1,18 +1,46 @@
 import { connection } from "next/server";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AgendaSections } from "@/presentation/contacts/agenda-sections";
+import { agendaSummary } from "@/presentation/contacts/agenda-summary";
 import { ContactForm } from "@/presentation/contacts/contact-form";
-import { ContactList } from "@/presentation/contacts/contact-list";
 import { ThemeToggle } from "@/presentation/theme-toggle";
-import { addContactAction, loadContacts, setFollowUpAction } from "./contacts-actions";
+import {
+  addContactAction,
+  advanceStageAction,
+  changeStageAction,
+  deleteContactAction,
+  loadAgenda,
+  recordFollowUpAction,
+  setFollowUpAction,
+  updateContactAction,
+} from "./contacts-actions";
 
-// Lue à chaque requête : la liste (et la date du jour qui calcule les retards)
-// ne doit pas être figée dans la page pré-générée.
-async function Contacts() {
+const cardActions = {
+  setFollowUp: setFollowUpAction,
+  advanceStage: advanceStageAction,
+  changeStage: changeStageAction,
+  recordFollowUp: recordFollowUpAction,
+  updateContact: updateContactAction,
+  deleteContact: deleteContactAction,
+};
+
+// Lu à chaque requête (la date du jour décide qui relancer), une seule fois
+// par requête pour le bandeau et les sections.
+const getAgenda = cache(async () => {
   await connection();
-  const contacts = await loadContacts();
-  return <ContactList contacts={contacts} setFollowUpAction={setFollowUpAction} />;
+  return loadAgenda();
+});
+
+async function Summary() {
+  const agenda = await getAgenda();
+  return <>{agendaSummary(agenda)}</>;
+}
+
+async function Sections() {
+  const agenda = await getAgenda();
+  return <AgendaSections agenda={agenda} actions={cardActions} />;
 }
 
 export default function Home() {
@@ -20,7 +48,14 @@ export default function Home() {
     <>
       <header className="bg-sidebar text-sidebar-foreground">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-6 sm:px-6">
-          <h1 className="text-4xl font-bold tracking-wide uppercase sm:text-5xl">Pipeline</h1>
+          <div>
+            <h1 className="text-4xl font-bold tracking-wide uppercase sm:text-5xl">Pipeline</h1>
+            <p className="text-sidebar-foreground/80 mt-1 text-sm" aria-live="polite">
+              <Suspense fallback="Chargement des relances…">
+                <Summary />
+              </Suspense>
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <a
               href="#nouveau-contact"
@@ -37,16 +72,9 @@ export default function Home() {
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-        <section aria-labelledby="contacts-titre">
-          <h2 id="contacts-titre" className="text-3xl font-bold tracking-wide uppercase">
-            Contacts
-          </h2>
-          <div className="mt-4">
-            <Suspense fallback={<p className="text-muted-foreground text-sm">Chargement des contacts…</p>}>
-              <Contacts />
-            </Suspense>
-          </div>
-        </section>
+        <Suspense fallback={<p className="text-muted-foreground text-sm">Chargement des contacts…</p>}>
+          <Sections />
+        </Suspense>
         <aside className="lg:sticky lg:top-6">
           <ContactForm action={addContactAction} />
         </aside>

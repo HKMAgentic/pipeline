@@ -13,6 +13,9 @@ export type ContactFormState = {
   values?: { name: string; company: string; followUpDate?: string };
 };
 
+// Message partagé avec la correction d'un contact (edit-contact.tsx).
+export const NAME_REQUIRED_MESSAGE = "Le nom est obligatoire.";
+
 type ContactFormProps = {
   action: (state: ContactFormState, formData: FormData) => Promise<ContactFormState>;
   initialState?: ContactFormState;
@@ -20,7 +23,7 @@ type ContactFormProps = {
 
 export function ContactForm({ action, initialState = { error: null } }: ContactFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
-  const nameError = state.error === "name_required" ? "Le nom est obligatoire." : null;
+  const nameError = state.error === "name_required" ? NAME_REQUIRED_MESSAGE : null;
   const dateError = state.error === "invalid_date" ? FOLLOW_UP_ERROR_MESSAGES.invalid_date : null;
 
   return (

@@ -31,38 +31,38 @@ Je choisis une date de relance, en créant le contact ou plus tard sur sa carte.
 
 À l'ouverture, la section « Relances du jour » montre seulement les contacts à relancer aujourd'hui ou en retard, les plus en retard en tête. Les autres contacts sont rangés dans une section « À venir », et le bandeau du haut donne le compte.
 
-- [ ] Étant donné 3 contacts (en retard de 4 jours, à relancer aujourd'hui, à relancer dans 5 jours), quand j'ouvre l'application, alors « Relances du jour » montre les 2 premiers, le plus en retard en tête.
-- [ ] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors celui à relancer dans 5 jours apparaît dans « À venir » et pas dans « Relances du jour ».
-- [ ] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors le bandeau affiche « 2 relances à faire, dont 1 en retard ».
-- [ ] Étant donné aucun contact à relancer aujourd'hui ni en retard, quand j'ouvre l'application, alors « Relances du jour » affiche « Rien à relancer aujourd'hui ».
-- [ ] Étant donné un contact à relancer demain, quand j'ouvre l'application le lendemain, alors il est passé dans « Relances du jour ».
+- [x] Étant donné 3 contacts (en retard de 4 jours, à relancer aujourd'hui, à relancer dans 5 jours), quand j'ouvre l'application, alors « Relances du jour » montre les 2 premiers, le plus en retard en tête.
+- [x] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors celui à relancer dans 5 jours apparaît dans « À venir » et pas dans « Relances du jour ».
+- [x] Étant donné ces mêmes contacts, quand j'ouvre l'application, alors le bandeau affiche « 2 relances à faire, dont 1 en retard ».
+- [x] Étant donné aucun contact à relancer aujourd'hui ni en retard, quand j'ouvre l'application, alors « Relances du jour » affiche « Rien à relancer aujourd'hui ».
+- [x] Étant donné un contact à relancer demain, quand j'ouvre l'application le lendemain, alors il est passé dans « Relances du jour ».
 
 ## Lot 4 · Faire avancer un contact d'étape
 
 Je clique sur « Étape suivante » sur une carte : le contact passe à l'étape d'après et son étiquette change. Si je me suis trompé, je peux choisir une autre étape dans la liste des étapes.
 
-- [ ] Étant donné un contact à l'étape « Contacté », quand je clique sur « Étape suivante », alors son étiquette devient « Échange » et l'étape est conservée après un redémarrage.
-- [ ] Étant donné un contact à l'étape « Signé », quand j'affiche sa carte, alors le bouton « Étape suivante » n'est pas proposé.
-- [ ] Étant donné un contact passé à « Proposition » par erreur, quand je choisis « Échange » dans la liste des étapes, alors il revient à « Échange ».
-- [ ] Étant donné un contact à « À contacter » ou « Contacté », quand j'affiche sa carte, alors son étiquette est kraft ; aux étapes suivantes, elle est bleue.
+- [x] Étant donné un contact à l'étape « Contacté », quand je clique sur « Étape suivante », alors son étiquette devient « Échange » et l'étape est conservée après un redémarrage.
+- [x] Étant donné un contact à l'étape « Signé », quand j'affiche sa carte, alors le bouton « Étape suivante » n'est pas proposé.
+- [x] Étant donné un contact passé à « Proposition » par erreur, quand je choisis « Échange » dans la liste des étapes, alors il revient à « Échange ».
+- [x] Étant donné un contact à « À contacter » ou « Contacté », quand j'affiche sa carte, alors son étiquette est kraft ; aux étapes suivantes, elle est bleue.
 
 ## Lot 5 · Noter une relance faite
 
 Après avoir relancé quelqu'un, je clique sur « Relancer » sur sa carte, je choisis éventuellement la prochaine date de relance, puis je valide. La carte affiche « Relancé le … » et le contact quitte les relances du jour.
 
-- [ ] Étant donné Hugo Bernard en retard, quand je clique sur « Relancer », choisis le 01/12 et valide, alors sa carte affiche « Relancé le 24 nov. » et un tampon bleu « 01·12 », et Hugo n'est plus dans « Relances du jour ».
-- [ ] Étant donné aucune prochaine date choisie, quand je valide, alors la relance est notée et la carte indique « Pas de relance prévue ».
-- [ ] Étant donné une prochaine date dans le passé, quand je valide, alors rien n'est enregistré et le message « Choisissez aujourd'hui ou une date à venir. » s'affiche.
-- [ ] Étant donné une relance notée, quand je redémarre l'application, alors « Relancé le … » et la nouvelle date sont conservés.
+- [x] Étant donné Hugo Bernard en retard, quand je clique sur « Relancer », choisis le 01/12 et valide, alors sa carte affiche « Relancé le 24 nov. » et un tampon bleu « 01·12 », et Hugo n'est plus dans « Relances du jour ».
+- [x] Étant donné aucune prochaine date choisie, quand je valide, alors la relance est notée et la carte indique « Pas de relance prévue ».
+- [x] Étant donné une prochaine date dans le passé, quand je valide, alors rien n'est enregistré et le message « Choisissez aujourd'hui ou une date à venir. » s'affiche.
+- [x] Étant donné une relance notée, quand je redémarre l'application, alors « Relancé le … » et la nouvelle date sont conservés.
 
 ## Lot 6 · Corriger ou supprimer un contact
 
 Je peux modifier le nom ou l'entreprise d'un contact. Je peux aussi le supprimer, après une confirmation, pour ne pas le perdre par erreur.
 
-- [ ] Étant donné « Atelier Roux », quand je le corrige en « Atelier Roux & fils » et j'enregistre, alors la carte affiche le nouveau nom, conservé après un redémarrage.
-- [ ] Étant donné un nom vidé lors de la modification, quand j'enregistre, alors rien n'est modifié et le message « Le nom est obligatoire. » s'affiche.
-- [ ] Étant donné le contact « Camille Roux », quand je clique sur « Supprimer » puis confirme, alors il disparaît de la liste et ne revient pas après un redémarrage.
-- [ ] Étant donné la demande de confirmation, quand j'annule, alors le contact reste dans la liste, inchangé.
+- [x] Étant donné « Atelier Roux », quand je le corrige en « Atelier Roux & fils » et j'enregistre, alors la carte affiche le nouveau nom, conservé après un redémarrage.
+- [x] Étant donné un nom vidé lors de la modification, quand j'enregistre, alors rien n'est modifié et le message « Le nom est obligatoire. » s'affiche.
+- [x] Étant donné le contact « Camille Roux », quand je clique sur « Supprimer » puis confirme, alors il disparaît de la liste et ne revient pas après un redémarrage.
+- [x] Étant donné la demande de confirmation, quand j'annule, alors le contact reste dans la liste, inchangé.
 
 ---
 

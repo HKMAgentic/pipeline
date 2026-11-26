@@ -13,6 +13,16 @@ function longDate(day: string) {
   });
 }
 
+// « Relancé le 24 nov. » : jour et mois abrégé.
+export function followUpDoneLabel(day: string) {
+  const date = new Date(`${day}T00:00:00Z`).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+  return `Relancé le ${date}`;
+}
+
 function plural(count: number, word: string) {
   return `${count} ${word}${count > 1 ? "s" : ""}`;
 }

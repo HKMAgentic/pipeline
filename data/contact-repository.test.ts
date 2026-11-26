@@ -24,7 +24,7 @@ describe("dépôt de contacts (libSQL)", () => {
     const saved = await repository.add(camille);
 
     expect(saved.id).toBeTruthy();
-    expect(await repository.list()).toEqual([{ ...camille, id: saved.id, createdAt: saved.createdAt }]);
+    expect(await repository.list()).toEqual([{ ...camille, lastFollowUpDate: null, id: saved.id, createdAt: saved.createdAt }]);
   });
 
   it("retrouve les contacts après un redémarrage (nouveau dépôt sur le même fichier)", async () => {
@@ -70,7 +70,7 @@ describe("date de relance (libSQL)", () => {
     const repository = createContactRepository(url);
     const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
 
-    await repository.setFollowUpDate(saved.id, "2026-12-01");
+    await repository.update(saved.id, { followUpDate: "2026-12-01" });
 
     const [contact] = await createContactRepository(url).list();
     expect(contact.followUpDate).toBe("2026-12-01");
@@ -80,7 +80,7 @@ describe("date de relance (libSQL)", () => {
     const repository = createContactRepository(tempDatabaseUrl());
     const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
 
-    await repository.setFollowUpDate(saved.id, null);
+    await repository.update(saved.id, { followUpDate: null });
 
     const [contact] = await repository.list();
     expect(contact.followUpDate).toBeNull();
@@ -106,10 +106,107 @@ describe("date de relance (libSQL)", () => {
         company: "Studio Lumen",
         stage: "Contacté",
         followUpDate: null,
+        lastFollowUpDate: null,
         createdAt: "2026-11-25T10:00:00.000Z",
       },
     ]);
-    await repository.setFollowUpDate("ancien", "2026-12-01");
+    await repository.update("ancien", { followUpDate: "2026-12-01" });
     expect((await repository.list())[0].followUpDate).toBe("2026-12-01");
+  });
+});
+
+describe("lire et modifier un contact (libSQL)", () => {
+  it("relit un contact par son identifiant", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add(camille);
+
+    expect(await repository.get(saved.id)).toEqual({ ...camille, lastFollowUpDate: null, id: saved.id, createdAt: saved.createdAt });
+  });
+
+  it("renvoie null pour un identifiant inconnu", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    expect(await repository.get("absent")).toBeNull();
+  });
+
+  it("garde la nouvelle étape après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add({ ...camille, stage: "Contacté" });
+
+    await createContactRepository(url).update(saved.id, { stage: "Échange" });
+
+    const afterRestart = createContactRepository(url);
+    expect((await afterRestart.get(saved.id))?.stage).toBe("Échange");
+  });
+
+  it("ne modifie que les champs demandés", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add({ ...camille, followUpDate: "2026-11-26" });
+
+    await repository.update(saved.id, { stage: "Échange" });
+
+    expect(await repository.get(saved.id)).toMatchObject({ name: "Camille Roux", followUpDate: "2026-11-26", stage: "Échange" });
+  });
+
+  it("une modification vide ne fait rien", async () => {
+    const repository = createContactRepository(tempDatabaseUrl());
+    const saved = await repository.add(camille);
+
+    await repository.update(saved.id, {});
+
+    expect(await repository.get(saved.id)).toMatchObject(camille);
+  });
+});
+
+describe("relance faite (libSQL)", () => {
+  it("garde « relancé le » et la nouvelle date après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add({ ...camille, followUpDate: "2026-11-20" });
+
+    await createContactRepository(url).update(saved.id, { lastFollowUpDate: "2026-11-24", followUpDate: "2026-12-01" });
+
+    const afterRestart = createContactRepository(url);
+    expect(await afterRestart.get(saved.id)).toMatchObject({ lastFollowUpDate: "2026-11-24", followUpDate: "2026-12-01" });
+  });
+
+  it("ouvre une base du lot 2 (sans colonne « relancé le ») sans perdre ses contacts", async () => {
+    const url = tempDatabaseUrl();
+    const old = createClient({ url });
+    await old.execute(
+      "CREATE TABLE contacts (id TEXT PRIMARY KEY, name TEXT NOT NULL, company TEXT NOT NULL, stage TEXT NOT NULL, created_at TEXT NOT NULL, follow_up_date TEXT)",
+    );
+    await old.execute(
+      "INSERT INTO contacts VALUES ('ancien', 'Hugo Bernard', 'Studio Lumen', 'Contacté', '2026-11-25T10:00:00.000Z', '2026-11-20')",
+    );
+    old.close();
+
+    const repository = createContactRepository(url);
+
+    expect(await repository.get("ancien")).toMatchObject({ followUpDate: "2026-11-20", lastFollowUpDate: null });
+    await repository.update("ancien", { lastFollowUpDate: "2026-11-24" });
+    expect((await repository.get("ancien"))?.lastFollowUpDate).toBe("2026-11-24");
+  });
+});
+
+describe("corriger et supprimer (libSQL)", () => {
+  it("garde le nom d'entreprise corrigé après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const saved = await createContactRepository(url).add(camille);
+
+    await createContactRepository(url).update(saved.id, { name: "Camille Roux", company: "Atelier Roux & fils" });
+
+    expect((await createContactRepository(url).get(saved.id))?.company).toBe("Atelier Roux & fils");
+  });
+
+  it("un contact supprimé ne revient pas après un redémarrage", async () => {
+    const url = tempDatabaseUrl();
+    const repository = createContactRepository(url);
+    const camilleSaved = await repository.add(camille);
+    await repository.add({ ...camille, name: "Hugo Bernard" });
+
+    await repository.remove(camilleSaved.id);
+
+    const afterRestart = createContactRepository(url);
+    expect((await afterRestart.list()).map((c) => c.name)).toEqual(["Hugo Bernard"]);
+    expect(await afterRestart.get(camilleSaved.id)).toBeNull();
   });
 });
