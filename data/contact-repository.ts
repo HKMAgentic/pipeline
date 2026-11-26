@@ -9,14 +9,16 @@ export type ContactRecord = {
   name: string;
   company: string;
   stage: string;
+  followUpDate: string | null; // jour AAAA-MM-JJ, ou null sans relance
   createdAt: string; // date ISO
 };
 
-export type NewContactRecord = Pick<ContactRecord, "name" | "company" | "stage">;
+export type NewContactRecord = Pick<ContactRecord, "name" | "company" | "stage" | "followUpDate">;
 
 export interface ContactRepository {
   add(contact: NewContactRecord): Promise<ContactRecord>;
   list(): Promise<ContactRecord[]>;
+  setFollowUpDate(id: string, date: string | null): Promise<void>;
 }
 
 // En local : un fichier SQLite à la racine du projet.
@@ -26,18 +28,26 @@ const DEFAULT_URL = "file:pipeline.db";
 export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAULT_URL): ContactRepository {
   const client = createClient({ url });
 
-  // La table est créée une seule fois, au premier accès.
-  let ready: Promise<unknown> | undefined;
+  // La table est préparée une seule fois, au premier accès.
+  let ready: Promise<void> | undefined;
   function ensureTable() {
-    ready ??= client.execute(`
-      CREATE TABLE IF NOT EXISTS contacts (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        company TEXT NOT NULL,
-        stage TEXT NOT NULL,
-        created_at TEXT NOT NULL
-      )
-    `);
+    ready ??= (async () => {
+      await client.execute(`
+        CREATE TABLE IF NOT EXISTS contacts (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          company TEXT NOT NULL,
+          stage TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          follow_up_date TEXT
+        )
+      `);
+      // Une base créée au lot 1 n'a pas la colonne de date : on l'ajoute.
+      const columns = await client.execute("PRAGMA table_info(contacts)");
+      if (!columns.rows.some((column) => column.name === "follow_up_date")) {
+        await client.execute("ALTER TABLE contacts ADD COLUMN follow_up_date TEXT");
+      }
+    })();
     return ready;
   }
 
@@ -46,8 +56,8 @@ export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAUL
       await ensureTable();
       const record: ContactRecord = { ...contact, id: randomUUID(), createdAt: new Date().toISOString() };
       await client.execute({
-        sql: "INSERT INTO contacts (id, name, company, stage, created_at) VALUES (?, ?, ?, ?, ?)",
-        args: [record.id, record.name, record.company, record.stage, record.createdAt],
+        sql: "INSERT INTO contacts (id, name, company, stage, follow_up_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        args: [record.id, record.name, record.company, record.stage, record.followUpDate, record.createdAt],
       });
       return record;
     },
@@ -56,15 +66,21 @@ export function createContactRepository(url = process.env.DATABASE_URL ?? DEFAUL
       await ensureTable();
       // rowid départage deux contacts créés à la même milliseconde.
       const result = await client.execute(
-        "SELECT id, name, company, stage, created_at FROM contacts ORDER BY created_at DESC, rowid DESC",
+        "SELECT id, name, company, stage, follow_up_date, created_at FROM contacts ORDER BY created_at DESC, rowid DESC",
       );
       return result.rows.map((row) => ({
         id: String(row.id),
         name: String(row.name),
         company: String(row.company),
         stage: String(row.stage),
+        followUpDate: row.follow_up_date === null ? null : String(row.follow_up_date),
         createdAt: String(row.created_at),
       }));
+    },
+
+    async setFollowUpDate(id, date) {
+      await ensureTable();
+      await client.execute({ sql: "UPDATE contacts SET follow_up_date = ? WHERE id = ?", args: [date, id] });
     },
   };
 }

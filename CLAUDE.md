@@ -10,10 +10,10 @@ Lis INTENT.md avant tout travail.
 
 Mini CRM de prospection mono-utilisateur. Les intentions produit, les contraintes et les critères d'acceptation sont dans `INTENT.md` : c'est la référence à relire avant toute décision d'architecture.
 
-État actuel : lot 1 livré (voir `lots.md` et `doc/plan/plan-lot-1.md`). On ajoute un contact (nom, entreprise) et il apparaît dans la liste, persistée en base.
+État actuel : lots 1 et 2 livrés (voir `lots.md`, `doc/plan/plan-lot-1.md` et `doc/plan/plan-lot-2.md`). On ajoute un contact (nom, entreprise, date de relance facultative), il apparaît dans la liste, persistée en base ; la carte affiche un tampon (bleu à venir, rouge en retard) et la date se change sur la carte.
 - Base : libSQL (`@libsql/client`), fichier local `pipeline.db` (ignoré par git) ou `DATABASE_URL` dans `.env.local`. Dépôt : `data/contact-repository.ts`.
-- Règles : `services/contacts.ts` (ajout, validation du nom, liste), `services/stages.ts` (étapes).
-- Écran : `presentation/contacts/` (formulaire, liste, carte). Branchement dépôt → service dans `app/contacts-actions.ts`, seule exception à la règle « app n'importe pas @/data ».
+- Règles : `services/contacts.ts` (ajout, validation du nom, date de relance, liste), `services/follow-up.ts` (jour valide, « aujourd’hui » à l’heure de Paris, retard), `services/stages.ts` (étapes).
+- Écran : `presentation/contacts/` (formulaire, liste, carte, tampon `date-stamp.tsx`, texte du tampon `follow-up-view.ts`, formulaire de relance `follow-up-form.tsx`). Branchement dépôt → service dans `app/contacts-actions.ts`, seule exception à la règle « app n’importe pas @/data ».
 - `page.tsx` lit la liste dans un `<Suspense>` après `connection()` (exigé par `cacheComponents`), l'action appelle `refresh()` de `next/cache`.
 
 ## Commandes (pnpm uniquement)
